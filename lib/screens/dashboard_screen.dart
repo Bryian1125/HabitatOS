@@ -15,6 +15,10 @@ class DashboardScreen extends StatelessWidget {
         SizedBox(height: 16),
         _ChartPlaceholder(),
         SizedBox(height: 16),
+        _RemainingSupplyRow(),
+        SizedBox(height: 16),
+        _LogsCard(),
+        SizedBox(height: 16),
       ],
     );
   }
@@ -85,6 +89,87 @@ class _ChartPlaceholder extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _RemainingSupplyRow extends StatelessWidget {
+  const _RemainingSupplyRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: const [
+        Expanded(child: _SupplyCard(title: 'Food supply', remaining: '21D Remaining', urgent: false)),
+        SizedBox(width: 16),
+        Expanded(child: _SupplyCard(title: 'Water supply', remaining: '14D Remaining', urgent: true)),
+      ],
+    );
+  }
+}
+
+class _SupplyCard extends StatelessWidget {
+  const _SupplyCard({required this.title, required this.remaining, required this.urgent});
+
+  final String title;
+  final String remaining;
+  final bool urgent;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = urgent ? AppColors.warning : AppColors.target;
+    return Card(
+      color: AppColors.card,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(color: AppColors.textSecondary)),
+            const SizedBox(height: 8),
+            Text(remaining, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, fontFamily: 'monospace')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LogsCard extends StatelessWidget {
+  const _LogsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: AppColors.card,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Recent logs', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+            const SizedBox(height: 8),
+            _logLine('08:12', 'Restock', 'Food supply +50', AppColors.target),
+            _logLine('07:30', 'Consumption', 'Water -2.5', AppColors.textSecondary),
+            _logLine('06:00', 'Status', 'Crew 3 on EVA', AppColors.warning),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _logLine(String time, String type, String message, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Text(time, style: const TextStyle(color: AppColors.textSecondary, fontFamily: 'monospace')),
+          const SizedBox(width: 12),
+          Icon(Icons.circle, size: 8, color: color),
+          const SizedBox(width: 8),
+          Text('$type: $message', style: const TextStyle(color: AppColors.textPrimary)),
+        ],
       ),
     );
   }
