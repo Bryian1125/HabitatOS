@@ -1,0 +1,18 @@
+import 'package:flutter/material.dart';
+import '../theme.dart';
+
+class LogsScreen extends StatelessWidget {
+  const LogsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: const [
+        Text('Logs', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        SizedBox(height: 16),
+        Text('View system logs here.', style: TextStyle(color: AppColors.textSecondary)),
+      ],
+    );
+  }
+}
