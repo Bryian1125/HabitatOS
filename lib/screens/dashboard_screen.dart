@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:async';
 
 import '../theme.dart';
 import 'home_screen.dart';
@@ -78,6 +80,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   },
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                child: _SidePanelClock(),
+              ),
             ],
           ),
         ),
@@ -90,5 +96,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ],
     );
+  }
+}
+
+class _SidePanelClock extends StatefulWidget {
+  const _SidePanelClock({super.key});
+
+  @override
+  State<_SidePanelClock> createState() => _SidePanelClockState();
+}
+
+class _SidePanelClockState extends State<_SidePanelClock> {
+  late String _dateTimeStr;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateTime();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) => _updateTime());
+  }
+
+  void _updateTime() {
+    final now = DateTime.now();
+    setState(() {
+      _dateTimeStr = '${_pad(now.hour)}:${_pad(now.minute)}:${_pad(now.second)}\n${_pad(now.day)}.${_pad(now.month)}.${now.year}';
+    });
+  }
+
+  String _pad(int value) => value.toString().padLeft(2, '0');
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              '${_pad(now.hour)}:${_pad(now.minute)}:${_pad(now.second)}',
+              style: GoogleFonts.orbitron(
+                color: Colors.white,
+                fontSize: 32,
+                letterSpacing: 2,
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'DMY:${_pad(now.day)}.${_pad(now.month)}.${now.year}',
+            style: GoogleFonts.orbitron(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+              letterSpacing: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 }

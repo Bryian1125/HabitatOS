@@ -6,12 +6,16 @@ class Resource {
   final String name;
   final int remainingDays;
   final double capacity; // percentage
+  final int quantity;
+  final String unit;
 
   Resource({
     required this.id,
     required this.name,
     required this.remainingDays,
     required this.capacity,
+    required this.quantity,
+    required this.unit,
   });
 }
 
@@ -34,12 +38,16 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
       name: 'Food',
       remainingDays: 31,
       capacity: 44.0,
+      quantity: 0,
+      unit: 'kg',
     ));
     _resources.add(Resource(
       id: 'water_1',
       name: 'Water',
       remainingDays: 28,
       capacity: 38.0,
+      quantity: 0,
+      unit: 'L',
     ));
   }
 
@@ -47,13 +55,15 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     showDialog(
       context: context,
       builder: (context) => _ResourceDialog(
-        onSave: (name) {
+        onSave: (name, quantity, unit) {
           setState(() {
             _resources.add(Resource(
               id: 'new_${DateTime.now().millisecondsSinceEpoch}',
               name: name,
               remainingDays: 0,
               capacity: 0.0,
+              quantity: quantity,
+              unit: unit,
             ));
           });
           Navigator.of(context).pop();
@@ -67,9 +77,9 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
       context: context,
       builder: (context) => _ResourceDialog(
         initialName: resource.name,
-        initialDays: resource.remainingDays,
-        initialCapacity: resource.capacity,
-        onSave: (name) {
+        initialQuantity: resource.quantity,
+        initialUnit: resource.unit,
+        onSave: (name, quantity, unit) {
           setState(() {
             final index = _resources.indexWhere((r) => r.id == resource.id);
             if (index != -1) {
@@ -78,6 +88,8 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                 name: name,
                 remainingDays: 0,
                 capacity: 0.0,
+                quantity: quantity,
+                unit: unit,
               );
             }
           });
@@ -189,15 +201,15 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
 
 class _ResourceDialog extends StatefulWidget {
   final String? initialName;
-  final int? initialDays;
-  final double? initialCapacity;
-  final void Function(String) onSave;
+  final int? initialQuantity;
+  final String? initialUnit;
+  final void Function(String, int, String) onSave;
 
   const _ResourceDialog({
     Key? key,
     this.initialName,
-    this.initialDays,
-    this.initialCapacity,
+    this.initialQuantity,
+    this.initialUnit,
     required this.onSave,
   }) : super(key: key);
 
@@ -208,10 +220,14 @@ class _ResourceDialog extends StatefulWidget {
 class _ResourceDialogState extends State<_ResourceDialog> {
   final _formKey = GlobalKey<FormState>();
   late final _nameController = TextEditingController(text: widget.initialName);
+  late final _quantityController = TextEditingController(text: widget.initialQuantity?.toString() ?? '');
+  late final _unitController = TextEditingController(text: widget.initialUnit ?? '');
 
   @override
   void dispose() {
     _nameController.dispose();
+    _quantityController.dispose();
+    _unitController.dispose();
     super.dispose();
   }
 
@@ -234,11 +250,24 @@ class _ResourceDialogState extends State<_ResourceDialog> {
                 return null;
               },
             ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _quantityController,
+              decoration: const InputDecoration(labelText: 'Quantity'),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _unitController,
+              decoration: const InputDecoration(labelText: 'Unit'),
+            ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  widget.onSave(_nameController.text);
+                  final quantity = int.tryParse(_quantityController.text) ?? 0;
+                  final unit = _unitController.text;
+                  widget.onSave(_nameController.text, quantity, unit);
                 }
               },
               child: const Text('Save'),
