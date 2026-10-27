@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 
 class Resource {
@@ -156,11 +157,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                       children: [
                         Text(
                           resource.name.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: GoogleFonts.orbitron( fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                         ),
                         Row(
                           children: [
@@ -173,6 +170,15 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                               onPressed: () => _deleteResource(resource),
                             ),
                           ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Text(
+                          '${resource.quantity} ${resource.unit}',
+                          style: GoogleFonts.orbitron( fontSize: 14, color: AppColors.textSecondary),
                         ),
                       ],
                     ),
