@@ -17,13 +17,20 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
+  final List<String> _resourceLogs = [];
 
-  final List<Widget> _pages = const [
-    HomeScreen(),
-    ResourcesScreen(),
-    LogsScreen(),
-    SettingsScreen(),
+  List<Widget> get _pages => [
+    const HomeScreen(),
+    ResourcesScreen(onEditLog: _addResourceLog),
+    LogsScreen(logs: _resourceLogs),
+    const SettingsScreen(),
   ];
+
+  void _addResourceLog(String message) {
+    setState(() {
+      _resourceLogs.add('${DateTime.now()}: $message');
+    });
+  }
 
   final List<String> _navLabels = const [
     'Home',
@@ -61,21 +68,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   itemCount: _navLabels.length,
                   itemBuilder: (context, index) {
                     final selected = index == _selectedIndex;
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      title: Text(
-                        _navLabels[index],
-                        style: TextStyle(
-                          color: selected ? AppColors.accent : AppColors.textSecondary,
-                          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
-                      selected: selected,
+                    return InkWell(
                       onTap: () {
                         setState(() {
                           _selectedIndex = index;
                         });
                       },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        child: Text(
+                          _navLabels[index],
+                          style: TextStyle(
+                            color: selected ? AppColors.accent : AppColors.textSecondary,
+                            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),
