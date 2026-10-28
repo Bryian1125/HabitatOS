@@ -12,12 +12,30 @@ class LogsScreen extends StatelessWidget {
       children: [
         Text('Logs', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         SizedBox(height: 16),
-        ...logs.map((entry) => InkWell(
-          onTap: () {},
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Text(entry, style: const TextStyle(color: AppColors.textSecondary)),
+        ...logs.map((entry) => Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.border, width: 0.5),
           ),
+          child: Builder(builder: (context) {
+            final parts = entry.split(': ');
+            final info = parts.isNotEmpty ? parts.first : entry;
+            final msg = parts.length > 1 ? parts.skip(1).join(': ') : '';
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 4),
+                Text('"${msg.isNotEmpty ? msg : entry}"', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 2),
+                Text(info, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+                const SizedBox(height: 4),
+              ],
+            );
+          }),
         )),
       ],
     );
