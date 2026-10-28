@@ -108,14 +108,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class _SidePanelClock extends StatefulWidget {
-  const _SidePanelClock({super.key});
+  const _SidePanelClock();
 
   @override
   State<_SidePanelClock> createState() => _SidePanelClockState();
 }
 
 class _SidePanelClockState extends State<_SidePanelClock> {
-  late String _dateTimeStr;
   late Timer _timer;
 
   @override
@@ -126,10 +125,7 @@ class _SidePanelClockState extends State<_SidePanelClock> {
   }
 
   void _updateTime() {
-    final now = DateTime.now();
-    setState(() {
-      _dateTimeStr = '${_pad(now.hour)}:${_pad(now.minute)}:${_pad(now.second)}\n${_pad(now.day)}.${_pad(now.month)}.${now.year}';
-    });
+    // clock updated via timer
   }
 
   String _pad(int value) => value.toString().padLeft(2, '0');

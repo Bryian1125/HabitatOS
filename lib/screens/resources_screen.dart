@@ -6,11 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../theme.dart';
 
-// ---------------------------------------------------------------------------
-// Model
-// ---------------------------------------------------------------------------
 
-/// A single stock change (positive = added, negative = used) at a point in time.
 @immutable
 class StockEntry {
   const StockEntry(this.time, this.delta);
@@ -19,7 +15,6 @@ class StockEntry {
   final int delta;
 }
 
-/// The stock level right after an entry was applied.
 @immutable
 class StockPoint {
   const StockPoint(this.time, this.quantity);
@@ -28,9 +23,6 @@ class StockPoint {
   final int quantity;
 }
 
-/// A tracked resource. The quantity and the chart history are both derived
-/// from [entries], so they can never disagree with each other, and entries
-/// logged with a past date land at the right place in time.
 @immutable
 class Resource {
   Resource({
@@ -40,7 +32,6 @@ class Resource {
     required Iterable<StockEntry> entries,
   }) : entries = List.unmodifiable(_chronological(entries));
 
-  /// Creates a resource whose first entry is its initial stock.
   factory Resource.create({
     required String id,
     required String name,
@@ -60,12 +51,10 @@ class Resource {
   final String name;
   final String unit;
 
-  /// Sorted oldest to newest.
   final List<StockEntry> entries;
 
   int get quantity => entries.fold(0, (sum, e) => sum + e.delta);
 
-  /// Running stock level after each entry, oldest to newest.
   List<StockPoint> get timeline {
     var total = 0;
     return [for (final e in entries) StockPoint(e.time, total += e.delta)];
@@ -78,12 +67,10 @@ class Resource {
         entries: [...entries, entry],
       );
 
-  /// True if logging [entry] would push the stock below zero at any moment.
   bool wouldGoNegative(StockEntry entry) =>
       withEntry(entry).timeline.any((p) => p.quantity < 0);
 
   static List<StockEntry> _chronological(Iterable<StockEntry> entries) {
-    // Ties: apply additions before removals so same-time edits can't dip below zero.
     return entries.toList()
       ..sort((a, b) {
         final byTime = a.time.compareTo(b.time);
@@ -92,9 +79,6 @@ class Resource {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Screen
-// ---------------------------------------------------------------------------
 
 class ResourcesScreen extends StatefulWidget {
   const ResourcesScreen({super.key, required this.onEditLog});
@@ -186,9 +170,6 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Resource card + chart
-// ---------------------------------------------------------------------------
 
 class _ResourceCard extends StatelessWidget {
   const _ResourceCard({super.key, required this.resource, required this.onEdit});
@@ -244,11 +225,6 @@ class _ResourceCard extends StatelessWidget {
   }
 }
 
-/// Line chart of stock level over time.
-///
-/// The x-axis is real elapsed time (in hours since the first entry), so a gap
-/// of a week looks seven times wider than a gap of a day. The line is extended
-/// flat up to "now" because the stock level holds until the next change.
 class _StockChart extends StatelessWidget {
   const _StockChart({required this.resource});
 
@@ -258,7 +234,6 @@ class _StockChart extends StatelessWidget {
   static const _xDivisions = 3;
   static const _msPerHour = Duration.millisecondsPerHour;
 
-  /// Keeps the x-range non-zero when everything happened at the same instant.
   static const _minSpanHours = 1 / 60;
 
   static const _axisStyle = TextStyle(fontSize: 10, color: AppColors.textSecondary);
@@ -281,7 +256,6 @@ class _StockChart extends StatelessWidget {
       for (final p in timeline) FlSpot(xOf(p.time), p.quantity.toDouble()),
     ];
 
-    // Carry the current level forward to now.
     final nowX = xOf(DateTime.now());
     final hasTail = nowX > spots.last.x;
     if (hasTail) spots.add(FlSpot(nowX, spots.last.y));
@@ -290,7 +264,6 @@ class _StockChart extends StatelessWidget {
     final maxX = max(tailX, _minSpanHours);
     final showClockTime = maxX < 24; // short span: HH:mm, otherwise MM-dd
 
-    // Whole-number y ticks with a little headroom above the peak.
     final peak = timeline.fold<int>(1, (m, p) => max(m, p.quantity));
     final yInterval = (peak / _yDivisions).ceil();
     final maxY = (yInterval * _yDivisions).toDouble();
@@ -310,7 +283,6 @@ class _StockChart extends StatelessWidget {
               color: AppColors.accent,
               dotData: FlDotData(
                 show: true,
-                // Mark real log entries only, not the synthetic "now" end point.
                 checkToShowDot: (spot, _) => !(hasTail && spot.x == tailX),
               ),
             ),
@@ -368,9 +340,6 @@ class _StockChart extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Dialogs
-// ---------------------------------------------------------------------------
 
 class _AddResourceDialog extends StatefulWidget {
   const _AddResourceDialog({required this.onSave});
@@ -627,9 +596,6 @@ Future<bool> _confirmDelete(BuildContext context) async {
   return confirmed ?? false;
 }
 
-// ---------------------------------------------------------------------------
-// Formatting helpers
-// ---------------------------------------------------------------------------
 
 String _two(int n) => n.toString().padLeft(2, '0');
 
