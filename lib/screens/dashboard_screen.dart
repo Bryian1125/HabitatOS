@@ -46,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // Side panel
         Container(
           width: 240,
-          color: const Color(0xFF0D1117),
+          color: const Color(0xFF0A0A0A),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -143,7 +143,7 @@ class _SidePanelClockState extends State<_SidePanelClock> {
             fit: BoxFit.scaleDown,
             child: Text(
               '${_pad(now.hour)}:${_pad(now.minute)}:${_pad(now.second)}',
-              style: GoogleFonts.orbitron(
+              style: GoogleFonts.jetBrainsMono(
                 color: Colors.white,
                 fontSize: 32,
                 letterSpacing: 2,
@@ -153,7 +153,7 @@ class _SidePanelClockState extends State<_SidePanelClock> {
           const SizedBox(height: 2),
           Text(
             'DMY:${_pad(now.day)}.${_pad(now.month)}.${now.year}',
-            style: GoogleFonts.orbitron(
+            style: GoogleFonts.jetBrainsMono(
               color: AppColors.textSecondary,
               fontSize: 14,
               letterSpacing: 1,

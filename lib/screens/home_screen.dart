@@ -153,7 +153,7 @@ class _ResourceCard extends StatelessWidget {
               children: [
                 Text(
                   '${resource.name.toUpperCase()} (${resource.unit})',
-                  style: GoogleFonts.orbitron(
+                  style: GoogleFonts.jetBrainsMono(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
@@ -168,7 +168,7 @@ class _ResourceCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               '${resource.quantity} ${resource.unit}',
-              style: GoogleFonts.orbitron(
+              style: GoogleFonts.jetBrainsMono(
                 fontSize: 14,
                 color: AppColors.textSecondary,
               ),

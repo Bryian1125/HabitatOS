@@ -159,6 +159,11 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
         ),
         const SizedBox(height: 16),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.card,
+            foregroundColor: AppColors.accent,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
           onPressed: _addResource,
           child: const Text('Add Resource'),
         ),
@@ -195,7 +200,7 @@ class _ResourceCard extends StatelessWidget {
               children: [
                 Text(
                   '${resource.name.toUpperCase()} (${resource.unit})',
-                  style: GoogleFonts.orbitron(
+                  style: GoogleFonts.jetBrainsMono(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
@@ -210,7 +215,7 @@ class _ResourceCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               '${resource.quantity} ${resource.unit}',
-              style: GoogleFonts.orbitron(
+              style: GoogleFonts.jetBrainsMono(
                 fontSize: 14,
                 color: AppColors.textSecondary,
               ),
