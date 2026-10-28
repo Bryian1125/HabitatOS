@@ -163,12 +163,11 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
           child: const Text('Add Resource'),
         ),
         const SizedBox(height: 16),
-        for (final resource in _resources)
-          _ResourceCard(
-            key: ValueKey(resource.id),
-            resource: resource,
-            onEdit: () => _editResource(resource),
-          ),
+        ..._resources.map((resource) => _ResourceCard(
+          key: ValueKey(resource.id),
+          resource: resource,
+          onEdit: () => _editResource(resource),
+        )),
       ],
     );
   }
@@ -216,6 +215,19 @@ class _ResourceCard extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
+            const SizedBox(height: 4),
+            Builder(builder: (context) {
+              final entries = resource.entries;
+              if (entries.length < 2) return const SizedBox.shrink();
+              final first = entries.first.time;
+              final last = entries.last.time;
+              final days = last.difference(first).inDays;
+              if (days <= 0) return const SizedBox.shrink();
+              final totalUsed = entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
+              final avg = totalUsed / days;
+              return Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
+                style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w500));
+            }),
             const SizedBox(height: 12),
             SizedBox(
               height: 180,

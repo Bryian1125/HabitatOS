@@ -20,7 +20,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<String> _resourceLogs = [];
 
   List<Widget> get _pages => [
-    const HomeScreen(),
+    HomeScreen(logs: _resourceLogs),
     ResourcesScreen(onEditLog: _addResourceLog),
     LogsScreen(logs: _resourceLogs),
     const SettingsScreen(),
