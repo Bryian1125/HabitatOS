@@ -89,7 +89,10 @@ class ResourcesScreen extends StatefulWidget {
   State<ResourcesScreen> createState() => _ResourcesScreenState();
 }
 
-class _ResourcesScreenState extends State<ResourcesScreen> {
+class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late final List<Resource> _resources = [
     Resource.create(id: 'food_1', name: 'Food', unit: 'kg', initialQuantity: 100),
     Resource.create(id: 'water_1', name: 'Water', unit: 'L', initialQuantity: 100),
@@ -142,6 +145,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
