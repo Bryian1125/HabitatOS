@@ -45,7 +45,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onDelete: _deleteResource,
       onRename: _renameResource,
     ),
-    LogsScreen(logs: _resourceLogs),
+    LogsScreen(
+      logs: _resourceLogs,
+      onDeleteLog: _deleteLog,
+      onClearLogs: _clearLogs,
+    ),
     const SettingsScreen(),
   ];
 
@@ -80,6 +84,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       _resourceLogs.add(entry);
     });
+  }
+
+  void _deleteLog(LogEntry entry) {
+    setState(() => _resourceLogs.remove(entry));
+  }
+
+  void _clearLogs() {
+    setState(() => _resourceLogs.clear());
   }
 
   final List<String> _navLabels = const [
