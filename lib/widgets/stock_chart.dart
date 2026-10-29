@@ -11,10 +11,9 @@ import '../utils/format.dart';
 ///
 /// Shared by the home panel and the resources list so both stay in step.
 class StockChart extends StatelessWidget {
-  const StockChart({super.key, required this.resource, this.lineColor});
+  const StockChart({super.key, required this.resource});
 
   final Resource resource;
-  final int? lineColor;
 
   static const _yDivisions = 4;
   static const _xDivisions = 3;
@@ -70,7 +69,7 @@ class StockChart extends StatelessWidget {
           LineChartBarData(
             spots: spots,
             isCurved: false,
-            color: lineColor != null ? Color(lineColor!) : AppColors.accent,
+            color: AppColors.accent,
             dotData: FlDotData(
               show: true,
               checkToShowDot: (spot, _) => !(hasTail && spot.x == tailX),
