@@ -2,10 +2,13 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class StockEntry {
-  const StockEntry(this.time, this.delta);
+  const StockEntry(this.time, this.delta, [this.note = '']);
 
   final DateTime time;
   final int delta;
+
+  /// Optional free-text note the user attached to the change.
+  final String note;
 }
 
 @immutable

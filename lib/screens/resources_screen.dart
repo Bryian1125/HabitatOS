@@ -67,7 +67,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
     if (index == -1) return;
 
     final resource = widget.resources[index];
-    widget.onLog(id, StockEntry(time, delta));
+    widget.onLog(id, StockEntry(time, delta, info));
 
     final note = info.isEmpty ? '' : ', $info';
     widget.onEditLog(LogEntry(

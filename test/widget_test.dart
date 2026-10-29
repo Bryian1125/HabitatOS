@@ -129,6 +129,19 @@ void main() {
       expect(fresh.avgPerDay, isNull);
       expect(sameTime.avgPerDay, isNull);
     });
+
+    test('a note stays attached to its entry', () {
+      final resource = Resource.create(
+        id: 'food',
+        name: 'Food',
+        unit: 'kg',
+        initialQuantity: 10,
+        createdAt: DateTime(2026, 1, 1),
+      ).withEntry(StockEntry(DateTime(2026, 1, 2), -3, 'dried food'));
+
+      expect(resource.entries.single.note, 'dried food');
+      expect(resource.entries.single.delta, -3);
+    });
   });
 
   testWidgets('app boots on the home tab and navigates to resources',
