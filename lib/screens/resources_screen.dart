@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../gradient_border.dart';
 
-
 @immutable
 class StockEntry {
   const StockEntry(this.time, this.delta);
@@ -79,7 +78,6 @@ class Resource {
       });
   }
 }
-
 
 class ResourcesScreen extends StatefulWidget {
   const ResourcesScreen({super.key, required this.onEditLog});
@@ -188,63 +186,63 @@ class _ResourceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GradientBorder(
-      child: Card(
-      color: AppColors.card,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${resource.name.toUpperCase()} (${resource.unit})',
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GradientBorder(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${resource.name.toUpperCase()} (${resource.unit})',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.edit, size: 20, color: AppColors.accent),
-                  onPressed: onEdit,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '${resource.quantity} ${resource.unit}',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 14,
-                color: AppColors.textSecondary,
+                  IconButton(
+                    icon: const Icon(Icons.edit, size: 20, color: AppColors.accent),
+                    onPressed: onEdit,
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 4),
-            Builder(builder: (context) {
-              final entries = resource.entries;
-              if (entries.length < 2) return const SizedBox.shrink();
-              final first = entries.first.time;
-              final last = entries.last.time;
-              final days = last.difference(first).inDays;
-              if (days <= 0) return const SizedBox.shrink();
-              final totalUsed = entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
-              final avg = totalUsed / days;
-              return Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
-                style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w500));
-            }),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 180,
-              width: double.infinity,
-              child: _StockChart(resource: resource),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                '${resource.quantity} ${resource.unit}',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Builder(builder: (context) {
+                final entries = resource.entries;
+                if (entries.length < 2) return const SizedBox.shrink();
+                final first = entries.first.time;
+                final last = entries.last.time;
+                final days = last.difference(first).inDays;
+                if (days <= 0) return const SizedBox.shrink();
+                final totalUsed = entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
+                final avg = totalUsed / days;
+                return Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
+                  style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w500));
+              }),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 180,
+                width: double.infinity,
+                child: _StockChart(resource: resource),
+              ),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 }
 
@@ -291,79 +289,78 @@ class _StockChart extends StatelessWidget {
     final yInterval = (peak / _yDivisions).ceil();
     final maxY = (yInterval * _yDivisions).toDouble();
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, right: 16),
-      child: LineChart(
-        LineChartData(
-          minX: 0,
-          maxX: maxX,
-          minY: 0,
-          maxY: maxY,
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: false,
-              color: AppColors.accent,
-              dotData: FlDotData(
-                show: true,
-                checkToShowDot: (spot, _) => !(hasTail && spot.x == tailX),
-              ),
-            ),
-          ],
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: yInterval.toDouble(),
-          ),
-          borderData: FlBorderData(show: false),
-          titlesData: FlTitlesData(
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 36,
-                interval: yInterval.toDouble(),
-                getTitlesWidget: (value, meta) =>
-                    Text(value.toInt().toString(), style: _axisStyle),
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 24,
-                interval: maxX / _xDivisions,
-                getTitlesWidget: (value, meta) {
-                  final t = timeAt(value);
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      showClockTime ? _formatTime(t) : _formatDate(t),
-                      style: _axisStyle,
-                    ),
-                  );
-                },
-              ),
+    return LineChart(
+      LineChartData(
+        minX: 0,
+        maxX: maxX,
+        minY: 0,
+        maxY: maxY,
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: false,
+            color: AppColors.accent,
+            dotData: FlDotData(
+              show: true,
+              checkToShowDot: (spot, _) => !(hasTail && spot.x == tailX),
             ),
           ),
-          lineTouchData: LineTouchData(
-            touchTooltipData: LineTouchTooltipData(
-              getTooltipItems: (touched) => [
-                for (final spot in touched)
-                  LineTooltipItem(
-                    '${_formatDateTime(timeAt(spot.x))}\n'
-                    '${spot.y.toInt()} ${resource.unit}',
-                    const TextStyle(color: Colors.white, fontSize: 12),
+        ],
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: yInterval.toDouble(),
+        ),
+        borderData: FlBorderData(show: false),
+        titlesData: FlTitlesData(
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 36,
+              interval: yInterval.toDouble(),
+              getTitlesWidget: (value, meta) =>
+                  Text(value.toInt().toString(), style: _axisStyle),
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 24,
+              interval: maxX / _xDivisions,
+              getTitlesWidget: (value, meta) {
+                final t = timeAt(value);
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    showClockTime ? _formatTime(t) : _formatDate(t),
+                    style: _axisStyle,
                   ),
-              ],
+                );
+              },
             ),
+          ),
+        ),
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            tooltipRoundedRadius: 8,
+            tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            tooltipMargin: 8,
+            getTooltipItems: (touched) => [
+              for (final spot in touched)
+                LineTooltipItem(
+                  '${_formatDateTime(timeAt(spot.x))}\n'
+                  '${spot.y.toInt()} ${resource.unit}',
+                  const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+            ],
           ),
         ),
       ),
     );
   }
 }
-
 
 class _AddResourceDialog extends StatefulWidget {
   const _AddResourceDialog({required this.onSave});
@@ -412,7 +409,7 @@ class _AddResourceDialogState extends State<_AddResourceDialog> {
     return AlertDialog(
       backgroundColor: AppColors.card,
       title: const Text('Add Resource', style: TextStyle(color: AppColors.textPrimary)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+      insetPadding: const EdgeInsets.all(20),
       content: Form(
         key: _formKey,
         child: Column(
@@ -536,7 +533,7 @@ class _EditResourceDialogState extends State<_EditResourceDialog> {
           fontWeight: FontWeight.bold,
         ),
       ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+      insetPadding: const EdgeInsets.all(20),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,7 +616,6 @@ Future<bool> _confirmDelete(BuildContext context) async {
   );
   return confirmed ?? false;
 }
-
 
 String _two(int n) => n.toString().padLeft(2, '0');
 
