@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// HabitatOS dark mission-control palette.
 class AppColors {
@@ -23,7 +22,7 @@ ThemeData buildAppTheme() {
   final base = ThemeData.dark(useMaterial3: true);
   return base.copyWith(
     scaffoldBackgroundColor: AppColors.background,
-    textTheme: GoogleFonts.jetBrainsMonoTextTheme(base.textTheme),
+    textTheme: base.textTheme.apply(fontFamily: 'JetBrainsMono'),
     cardTheme: CardThemeData(
       color: AppColors.card,
       elevation: 4,

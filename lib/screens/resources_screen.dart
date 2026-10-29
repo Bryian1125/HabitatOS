@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../gradient_border.dart';
 import '../models/log_entry.dart';
@@ -156,7 +155,7 @@ class _ResourceCard extends StatelessWidget {
                 children: [
                   Text(
                     '${resource.name.toUpperCase()} (${resource.unit})',
-                    style: GoogleFonts.jetBrainsMono(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
@@ -185,7 +184,7 @@ class _ResourceCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 '${resource.quantity} ${resource.unit}',
-                style: GoogleFonts.jetBrainsMono(
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),

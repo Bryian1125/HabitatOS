@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
 import '../models/log_entry.dart';
 import 'resources_screen.dart';
@@ -111,7 +110,7 @@ class _ResourcePanel extends StatelessWidget {
               resource == null
                   ? 'NO DATA'
                   : '${resource.name.toUpperCase()} (${resource.unit})',
-              style: GoogleFonts.jetBrainsMono(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
@@ -123,7 +122,7 @@ class _ResourcePanel extends StatelessWidget {
             else ...[
               Text(
                 '${resource.quantity} ${resource.unit}',
-                style: GoogleFonts.jetBrainsMono(
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),

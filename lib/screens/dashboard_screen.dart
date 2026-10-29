@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 
 import '../models/log_entry.dart';
@@ -262,7 +261,7 @@ class _SidePanelClockState extends State<_SidePanelClock> {
             fit: BoxFit.scaleDown,
             child: Text(
               '${_pad(now.hour)}:${_pad(now.minute)}:${_pad(now.second)}',
-              style: GoogleFonts.jetBrainsMono(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 32,
                 letterSpacing: 2,
@@ -272,7 +271,7 @@ class _SidePanelClockState extends State<_SidePanelClock> {
           const SizedBox(height: 2),
           Text(
             'DMY:${_pad(now.day)}.${_pad(now.month)}.${now.year}',
-            style: GoogleFonts.jetBrainsMono(
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
               letterSpacing: 1,
