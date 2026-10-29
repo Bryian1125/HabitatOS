@@ -237,7 +237,7 @@ class _SidePanelClock extends StatefulWidget {
 }
 
 class _SidePanelClockState extends State<_SidePanelClock> {
-  late Timer _timer;
+  late final Timer _timer;
 
   @override
   void initState() {

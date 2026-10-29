@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'HabitatOS',
       theme: buildAppTheme(),
+      debugShowCheckedModeBanner: false,
       home: const Scaffold(
         body: DashboardScreen(),
       ),
