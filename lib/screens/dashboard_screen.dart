@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 
+import '../models/log_entry.dart';
 import '../theme.dart';
 import 'home_screen.dart';
 import 'resources_screen.dart';
@@ -17,7 +18,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
-  final List<String> _resourceLogs = [];
+  final List<LogEntry> _resourceLogs = [];
 
   final List<Resource> _resources = [
     Resource.create(id: 'food_1', name: 'Food', unit: 'kg', initialQuantity: 100),
@@ -53,9 +54,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() => _resources.removeWhere((r) => r.id == id));
   }
 
-  void _addResourceLog(String message) {
+  void _addResourceLog(LogEntry entry) {
     setState(() {
-      _resourceLogs.add('${DateTime.now()}: $message');
+      _resourceLogs.add(entry);
     });
   }
 

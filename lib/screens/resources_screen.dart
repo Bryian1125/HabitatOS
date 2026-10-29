@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../gradient_border.dart';
+import '../models/log_entry.dart';
 import '../models/resource.dart';
 import '../theme.dart';
+import '../utils/format.dart';
 
 export '../models/resource.dart';
-
 
 class ResourcesScreen extends StatefulWidget {
   const ResourcesScreen({
@@ -21,7 +22,7 @@ class ResourcesScreen extends StatefulWidget {
     required this.onDelete,
   });
 
-  final void Function(String) onEditLog;
+  final void Function(LogEntry) onEditLog;
   final List<Resource> resources;
   final void Function(Resource) onAdd;
   final void Function(String id, StockEntry entry) onLog;
@@ -69,10 +70,12 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
     widget.onLog(id, StockEntry(time, delta));
 
     final note = info.isEmpty ? '' : ', $info';
-    widget.onEditLog(
-      '${_formatDateTime(time)}: Edit ${resource.name}: '
-      '${_signed(delta)} ${resource.unit}$note',
-    );
+    widget.onEditLog(LogEntry(
+      time: time,
+      resourceId: id,
+      message: 'Edit ${resource.name}: ${signedDelta(delta)} '
+          '${resource.unit}$note',
+    ));
   }
 
   @override
@@ -267,7 +270,7 @@ class _StockChart extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
-                    showClockTime ? _formatTime(t) : _formatDate(t),
+                    showClockTime ? formatTime(t) : formatDate(t),
                     style: _axisStyle,
                   ),
                 );
@@ -283,7 +286,7 @@ class _StockChart extends StatelessWidget {
             getTooltipItems: (touched) => [
               for (final spot in touched)
                 LineTooltipItem(
-                  '${_formatDateTime(timeAt(spot.x))}\n'
+                  '${formatDateTime(timeAt(spot.x))}\n'
                   '${spot.y.toInt()} ${resource.unit}',
                   const TextStyle(color: Colors.white, fontSize: 12),
                 ),
@@ -497,7 +500,7 @@ class _EditResourceDialogState extends State<_EditResourceDialog> {
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.accent),
               ),
               child: Text(
-                _formatDateTime(_dateTime),
+                formatDateTime(_dateTime),
                 style: const TextStyle(color: AppColors.textPrimary),
               ),
             ),
@@ -549,13 +552,3 @@ Future<bool> _confirmDelete(BuildContext context) async {
   );
   return confirmed ?? false;
 }
-
-String _two(int n) => n.toString().padLeft(2, '0');
-
-String _formatDate(DateTime t) => '${_two(t.month)}-${_two(t.day)}';
-
-String _formatTime(DateTime t) => '${_two(t.hour)}:${_two(t.minute)}';
-
-String _formatDateTime(DateTime t) => '${t.year}-${_formatDate(t)} ${_formatTime(t)}';
-
-String _signed(int n) => n > 0 ? '+$n' : '$n';

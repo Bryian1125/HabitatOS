@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
+import '../models/log_entry.dart';
 import 'resources_screen.dart';
 import '../theme.dart';
 import '../gradient_border.dart';
+import '../utils/format.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, this.logs = const [], this.resources = const []});
 
-  final List<String> logs;
+  final List<LogEntry> logs;
   final List<Resource> resources;
 
   /// The resource with the most logged entries; ties go to the most recently edited.
@@ -50,7 +52,10 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   ...logs.reversed.take(12).map((entry) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Text(entry, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    child: Text(
+                      '${formatDateTime(entry.time)}: ${entry.message}',
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    ),
                   )),
                 ],
               ),
