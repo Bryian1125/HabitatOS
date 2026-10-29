@@ -35,7 +35,8 @@ class LogsScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+            child: const Text('Clear',
+                style: TextStyle(color: AppColors.critical)),
           ),
         ],
       ),

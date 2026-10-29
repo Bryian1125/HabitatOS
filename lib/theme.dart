@@ -9,8 +9,8 @@ class AppColors {
   static const textSecondary = Color(0xFF777777);
   static const accent = Color(0xFFCCCCCC);
   static const target = Color(0xFFAAAAAA);
-  static const warning = Color(0xFFCCCCCC);
-  static const critical = Color(0xFFCCCCCC);
+  static const warning = Color(0xFFD9A441);
+  static const critical = Color(0xFFD96A6A);
   static const border = Color(0xFF222222);
 }
 

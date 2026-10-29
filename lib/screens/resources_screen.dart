@@ -657,7 +657,7 @@ class _EditResourceDialogState extends State<_EditResourceDialog> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         IconButton(
-          icon: const Icon(Icons.delete, color: Colors.red),
+          icon: const Icon(Icons.delete, color: AppColors.critical),
           tooltip: 'Delete',
           onPressed: _delete,
         ),
@@ -692,7 +692,7 @@ Future<bool> _confirmDelete(BuildContext context) async {
         ),
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          child: const Text('Delete', style: TextStyle(color: AppColors.critical)),
         ),
       ],
     ),
