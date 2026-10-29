@@ -7,15 +7,10 @@ import '../models/resource.dart';
 
 /// Everything the app keeps between launches.
 class HabitatData {
-  const HabitatData({
-    this.resources = const [],
-    this.logs = const [],
-    this.graphLineColor = 0xFF39FF14, // electric-neon-green default
-  });
+  const HabitatData({this.resources = const [], this.logs = const []});
 
   final List<Resource> resources;
   final List<LogEntry> logs;
-  final int graphLineColor; // ARGB int
 
   static const empty = HabitatData();
 }
@@ -51,7 +46,6 @@ class StorageService {
           for (final json in decoded['logs'] as List<dynamic>? ?? const [])
             LogEntry.fromJson(json as Map<String, dynamic>),
         ],
-        graphLineColor: decoded['graphLineColor'] as int? ?? 0xFF39FF14,
       );
     } on Object {
       // A corrupt or outdated blob should not stop the app from starting.
@@ -66,7 +60,6 @@ class StorageService {
       jsonEncode({
         'resources': [for (final r in data.resources) r.toJson()],
         'logs': [for (final l in data.logs) l.toJson()],
-        'graphLineColor': data.graphLineColor,
       }),
     );
   }
