@@ -14,6 +14,11 @@ class AppColors {
   static const border = Color(0xFF222222);
 }
 
+final _dialogShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.circular(12),
+  side: const BorderSide(color: AppColors.border, width: 0.5),
+);
+
 ThemeData buildAppTheme() {
   final base = ThemeData.dark(useMaterial3: true);
   return base.copyWith(
@@ -25,12 +30,51 @@ ThemeData buildAppTheme() {
       shadowColor: Colors.black.withValues(alpha: 0.7),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.border, width: 0.5),
+        side: const BorderSide(color: AppColors.border, width: 0.5),
       ),
     ),
     colorScheme: base.colorScheme.copyWith(
       primary: AppColors.accent,
       surface: AppColors.card,
+      error: AppColors.critical,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: AppColors.card,
+      surfaceTintColor: Colors.transparent,
+      shape: _dialogShape,
+      titleTextStyle: const TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+      contentTextStyle: const TextStyle(color: AppColors.textSecondary),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      labelStyle: const TextStyle(color: AppColors.textSecondary),
+      floatingLabelStyle: const TextStyle(color: AppColors.accent),
+      hintStyle: const TextStyle(color: AppColors.textSecondary),
+      errorStyle: const TextStyle(color: AppColors.critical),
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: AppColors.accent),
+      ),
+    ),
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: AppColors.card,
+      surfaceTintColor: Colors.transparent,
+      headerBackgroundColor: AppColors.background,
+      headerForegroundColor: AppColors.textPrimary,
+      shape: _dialogShape,
+    ),
+    timePickerTheme: TimePickerThemeData(
+      backgroundColor: AppColors.card,
+      dialBackgroundColor: AppColors.background,
+      dialHandColor: AppColors.accent,
+      dialTextColor: AppColors.textPrimary,
+      entryModeIconColor: AppColors.textSecondary,
+      shape: _dialogShape,
     ),
   );
 }
