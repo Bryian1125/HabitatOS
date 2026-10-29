@@ -19,6 +19,15 @@ ThemeData buildAppTheme() {
   return base.copyWith(
     scaffoldBackgroundColor: AppColors.background,
     textTheme: GoogleFonts.jetBrainsMonoTextTheme(base.textTheme),
+    cardTheme: CardThemeData(
+      color: AppColors.card,
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.7),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.border, width: 0.5),
+      ),
+    ),
     colorScheme: base.colorScheme.copyWith(
       primary: AppColors.accent,
       surface: AppColors.card,

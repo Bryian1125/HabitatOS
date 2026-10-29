@@ -29,65 +29,37 @@ class HomeScreen extends StatelessWidget {
         ),
         ),
         const SizedBox(height: 16),
-        // Bottom row: supplies + logs
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Card(
-                color: AppColors.card,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: const [
-                          Expanded(child: Text('Food supply', style: TextStyle(color: AppColors.textSecondary))),
-                          Expanded(child: Text('Water supply', style: TextStyle(color: AppColors.textSecondary))),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
-                          Expanded(child: Text('21D', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontFamily: 'monospace'))),
-                          Expanded(child: Text('14D', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontFamily: 'monospace'))),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const Row(
-                        children: [
-                          Expanded(child: Text('Remaining', style: TextStyle(color: AppColors.textSecondary))),
-                          Expanded(child: Text('Remaining', style: TextStyle(color: AppColors.textSecondary))),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+        // Bottom row: logs full width
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: [Colors.grey.shade600, const Color(0xFF333333)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          padding: const EdgeInsets.all(1.5),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(10.5),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('LOGS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                  const SizedBox(height: 20),
+                  ...logs.reversed.take(12).map((entry) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Text(entry, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  )),
+                ],
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Card(
-                color: AppColors.card,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('LOGS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                      const SizedBox(height: 20),
-                      ...logs.reversed.take(5).map((entry) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(entry, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-                      )).toList(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
@@ -103,35 +75,50 @@ class _DataPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.card,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                ),
-                const Spacer(),
-                if (subtitle != null)
-                  Text(
-                    subtitle!,
-                    style: const TextStyle(color: AppColors.critical),
-                  ),
-              ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: [Colors.grey.shade600, const Color(0xFF333333)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      padding: const EdgeInsets.all(1.5),
+      child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(10.5),
             ),
-            const SizedBox(height: 16),
-            child,
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  ),
+                  const Spacer(),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: const TextStyle(color: AppColors.critical),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              child,
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
 class _ResourceCard extends StatelessWidget {
   const _ResourceCard({super.key, required this.resource, required this.onEdit});
 
@@ -140,26 +127,39 @@ class _ResourceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.card,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${resource.name.toUpperCase()} (${resource.unit})',
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: [Colors.grey.shade600, const Color(0xFF333333)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      padding: const EdgeInsets.all(1.5),
+      child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(10.5),
+            ),
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${resource.name.toUpperCase()} (${resource.unit})',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
-                IconButton(
+                  IconButton(
                   icon: const Icon(Icons.edit, size: 20, color: AppColors.accent),
                   onPressed: onEdit,
                 ),
@@ -195,7 +195,7 @@ class _ResourceCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 

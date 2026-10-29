@@ -13,14 +13,23 @@ class LogsScreen extends StatelessWidget {
         Text('Logs', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         SizedBox(height: 16),
         ...logs.map((entry) => Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.border, width: 0.5),
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: [Colors.grey.shade600, const Color(0xFF333333)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-          child: Builder(builder: (context) {
+          padding: const EdgeInsets.all(1.5),
+          margin: const EdgeInsets.only(bottom: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(10.5),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Builder(builder: (context) {
             final parts = entry.split(': ');
             final info = parts.isNotEmpty ? parts.first : entry;
             final msg = parts.length > 1 ? parts.skip(1).join(': ') : '';
@@ -36,7 +45,7 @@ class LogsScreen extends StatelessWidget {
               ],
             );
           }),
-        )),
+        ))),
       ],
     );
   }
