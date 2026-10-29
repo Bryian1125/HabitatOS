@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
 import 'resources_screen.dart';
 import '../theme.dart';
+import '../gradient_border.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, this.logs = const []});
@@ -30,23 +31,13 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         // Bottom row: logs full width
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              colors: [Colors.grey.shade600, const Color(0xFF333333)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          padding: const EdgeInsets.all(1.5),
+        GradientBorder(
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.card,
               borderRadius: BorderRadius.circular(10.5),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -60,7 +51,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -84,7 +74,7 @@ class _DataPanel extends StatelessWidget {
           end: Alignment.bottomCenter,
         ),
       ),
-      padding: const EdgeInsets.all(1.5),
+      padding: const EdgeInsets.all(0),
       child: Container(
             decoration: BoxDecoration(
               color: AppColors.card,
@@ -127,25 +117,15 @@ class _ResourceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        gradient: LinearGradient(
-          colors: [Colors.grey.shade600, const Color(0xFF333333)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      padding: const EdgeInsets.all(1.5),
+    return GradientBorder(
       child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(10.5),
-            ),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(10.5),
+        ),
         margin: const EdgeInsets.only(bottom: 16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
+        padding: const EdgeInsets.all(16),
+        child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
@@ -195,7 +175,7 @@ class _ResourceCard extends StatelessWidget {
           ],
         ),
       ),
-    ));
+    );
   }
 }
 

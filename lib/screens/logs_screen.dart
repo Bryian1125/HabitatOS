@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../gradient_border.dart';
 
 class LogsScreen extends StatelessWidget {
   final List<String> logs;
@@ -15,13 +16,9 @@ class LogsScreen extends StatelessWidget {
         ...logs.map((entry) => Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              colors: [Colors.grey.shade600, const Color(0xFF333333)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+            
           ),
-          padding: const EdgeInsets.all(1.5),
+          padding: const EdgeInsets.all(0),
           margin: const EdgeInsets.only(bottom: 8),
           child: Container(
             decoration: BoxDecoration(
