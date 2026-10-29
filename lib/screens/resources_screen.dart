@@ -609,6 +609,14 @@ class _EditResourceDialogState extends State<_EditResourceDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Current: ${resource.quantity} ${resource.unit}',
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 12),
           TextField(
             controller: _delta,
             decoration: InputDecoration(
