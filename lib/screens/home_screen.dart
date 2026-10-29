@@ -75,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                   )
                 else
                   ...logs.reversed
-                      .take(12)
+                      .take(3)
                       .map(
                         (entry) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 6),
