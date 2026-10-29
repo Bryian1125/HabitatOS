@@ -61,20 +61,29 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                ...logs.reversed
-                    .take(12)
-                    .map(
-                      (entry) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Text(
-                          '${formatDateTime(entry.time)}: ${entry.message}',
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
+                if (logs.isEmpty)
+                  const Text(
+                    'No entries yet. Log a stock change from Resources.',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  )
+                else
+                  ...logs.reversed
+                      .take(12)
+                      .map(
+                        (entry) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(
+                            '${formatDateTime(entry.time)}: ${entry.message}',
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ),
-                    ),
               ],
             ),
           ),

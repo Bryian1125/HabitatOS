@@ -168,6 +168,7 @@ void main() {
 
     expect(find.text('HabitatOS'), findsOneWidget);
     expect(find.text('Home'), findsOneWidget);
+    expect(find.textContaining('No entries yet'), findsOneWidget);
 
     await tester.tap(find.text('Resources'));
     await tester.pumpAndSettle();
