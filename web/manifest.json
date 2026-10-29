@@ -1,11 +1,11 @@
 {
-    "name": "habitatos",
-    "short_name": "habitatos",
+    "name": "HabitatOS",
+    "short_name": "HabitatOS",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0F0F0F",
+    "theme_color": "#0F0F0F",
+    "description": "Habitat resource tracker for analog space missions.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
