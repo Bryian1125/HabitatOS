@@ -22,7 +22,7 @@ ThemeData buildAppTheme() {
     cardTheme: CardThemeData(
       color: AppColors.card,
       elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.7),
+      shadowColor: Colors.black.withValues(alpha: 0.7),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: AppColors.border, width: 0.5),
