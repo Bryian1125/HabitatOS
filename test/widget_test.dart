@@ -159,6 +159,10 @@ void main() {
   testWidgets('app boots on the home tab and navigates to resources', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
@@ -170,5 +174,24 @@ void main() {
 
     expect(find.text('Add Resource'), findsOneWidget);
     expect(find.byIcon(Icons.edit), findsWidgets);
+  });
+
+  testWidgets('sidebar collapses to an icon rail on a narrow window', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(600, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('HabitatOS'), findsNothing);
+    expect(find.byIcon(Icons.inventory_2_outlined), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.inventory_2_outlined));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Resource'), findsOneWidget);
   });
 }

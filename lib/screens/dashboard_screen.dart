@@ -89,77 +89,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
     'Settings',
   ];
 
+  final List<IconData> _navIcons = const [
+    Icons.dashboard_outlined,
+    Icons.inventory_2_outlined,
+    Icons.receipt_long_outlined,
+    Icons.settings_outlined,
+  ];
+
+  /// The full sidebar needs room for its labels; below this width it collapses
+  /// to an icon rail so the content area keeps a usable size.
+  static const _fullSidebarBreakpoint = 900.0;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // Side panel
-        Container(
-          width: 240,
-          color: const Color(0xFF0A0A0A),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(24, 32, 24, 8),
-                child: Text(
-                  'HabitatOS',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final expanded = constraints.maxWidth >= _fullSidebarBreakpoint;
+        return Row(
+          children: [
+            _buildSidePanel(expanded: expanded),
+            Expanded(
+              child: Container(
+                color: AppColors.background,
+                child: IndexedStack(index: _selectedIndex, children: _pages),
               ),
-              const Divider(color: AppColors.border, height: 1),
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  itemCount: _navLabels.length,
-                  itemBuilder: (context, index) {
-                    final selected = index == _selectedIndex;
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedIndex = index;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        child: Text(
-                          _navLabels[index],
-                          style: TextStyle(
-                            color: selected
-                                ? AppColors.accent
-                                : AppColors.textSecondary,
-                            fontWeight: selected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSidePanel({required bool expanded}) {
+    return Container(
+      width: expanded ? 240 : 72,
+      color: const Color(0xFF0A0A0A),
+      child: Column(
+        crossAxisAlignment:
+            expanded ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: expanded
+                ? const EdgeInsets.fromLTRB(24, 32, 24, 8)
+                : const EdgeInsets.fromLTRB(8, 32, 8, 8),
+            child: expanded
+                ? const Text(
+                    'HabitatOS',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  )
+                : const Icon(Icons.eco_outlined,
+                    color: AppColors.textPrimary, size: 26),
+          ),
+          const Divider(color: AppColors.border, height: 1),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemCount: _navLabels.length,
+              itemBuilder: (context, index) {
+                final selected = index == _selectedIndex;
+                final color =
+                    selected ? AppColors.accent : AppColors.textSecondary;
+                final icon = Icon(
+                  _navIcons[index],
+                  size: 20,
+                  color: color,
+                );
+                return InkWell(
+                  onTap: () => setState(() => _selectedIndex = index),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: expanded ? 24 : 0,
+                      vertical: 12,
+                    ),
+                    child: expanded
+                        ? Row(
+                            children: [
+                              icon,
+                              const SizedBox(width: 12),
+                              Text(
+                                _navLabels[index],
+                                style: TextStyle(
+                                  color: color,
+                                  fontWeight: selected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Tooltip(
+                            message: _navLabels[index],
+                            child: Center(child: icon),
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-                child: _SidePanelClock(),
-              ),
-            ],
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        // Content area
-        Expanded(
-          child: Container(
-            color: AppColors.background,
-            child: IndexedStack(index: _selectedIndex, children: _pages),
-          ),
-        ),
-      ],
+          if (expanded)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(24, 16, 24, 24),
+              child: _SidePanelClock(),
+            ),
+        ],
+      ),
     );
   }
 }
