@@ -61,10 +61,7 @@ void main() {
         unit: 'kg',
         initialQuantity: 10,
         createdAt: DateTime(2026, 1, 1),
-        entries: [
-          StockEntry(late, -5),
-          StockEntry(early, 50),
-        ],
+        entries: [StockEntry(late, -5), StockEntry(early, 50)],
       );
 
       expect(resource.entries.map((e) => e.time), [early, late]);
@@ -81,9 +78,18 @@ void main() {
       ).withEntry(StockEntry(DateTime(2026, 1, 2), -20));
 
       expect(resource.quantity, 10);
-      expect(resource.wouldGoNegative(StockEntry(DateTime(2026, 1, 3), -11)), isTrue);
-      expect(resource.wouldGoNegative(StockEntry(DateTime(2026, 1, 3), -10)), isFalse);
-      expect(resource.wouldGoNegative(StockEntry(DateTime(2026, 1, 3), 5)), isFalse);
+      expect(
+        resource.wouldGoNegative(StockEntry(DateTime(2026, 1, 3), -11)),
+        isTrue,
+      );
+      expect(
+        resource.wouldGoNegative(StockEntry(DateTime(2026, 1, 3), -10)),
+        isFalse,
+      );
+      expect(
+        resource.wouldGoNegative(StockEntry(DateTime(2026, 1, 3), 5)),
+        isFalse,
+      );
     });
 
     test('withEntry returns a new resource and leaves the original alone', () {
@@ -105,15 +111,16 @@ void main() {
     });
 
     test('avgPerDay divides usage by the elapsed span, not whole days', () {
-      final resource = Resource.create(
-        id: 'food',
-        name: 'Food',
-        unit: 'kg',
-        initialQuantity: 100,
-        createdAt: DateTime(2026, 1, 1, 0),
-      )
-          .withEntry(StockEntry(DateTime(2026, 1, 1, 3), -6))
-          .withEntry(StockEntry(DateTime(2026, 1, 1, 6), -6));
+      final resource =
+          Resource.create(
+                id: 'food',
+                name: 'Food',
+                unit: 'kg',
+                initialQuantity: 100,
+                createdAt: DateTime(2026, 1, 1, 0),
+              )
+              .withEntry(StockEntry(DateTime(2026, 1, 1, 3), -6))
+              .withEntry(StockEntry(DateTime(2026, 1, 1, 6), -6));
 
       // 12 kg over 6 hours is 48 kg/day. The old whole-day maths saw a zero
       // day span and hid the figure entirely.
@@ -122,8 +129,13 @@ void main() {
 
     test('avgPerDay needs two entries on different timestamps', () {
       final created = DateTime(2026, 1, 1);
-      final fresh =
-          Resource.create(id: 'a', name: 'A', unit: 'kg', initialQuantity: 5, createdAt: created);
+      final fresh = Resource.create(
+        id: 'a',
+        name: 'A',
+        unit: 'kg',
+        initialQuantity: 5,
+        createdAt: created,
+      );
       final sameTime = fresh.withEntry(StockEntry(created, -1));
 
       expect(fresh.avgPerDay, isNull);
@@ -144,8 +156,9 @@ void main() {
     });
   });
 
-  testWidgets('app boots on the home tab and navigates to resources',
-      (tester) async {
+  testWidgets('app boots on the home tab and navigates to resources', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 

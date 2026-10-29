@@ -86,28 +86,39 @@ class Resource {
     final span = points.last.time.difference(points.first.time);
     final days = span.inSeconds / Duration.secondsPerDay;
     if (days < 1 / Duration.minutesPerDay) return null;
-    final totalUsed =
-        entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
+    final totalUsed = entries.fold(
+      0,
+      (sum, e) => sum + (e.delta < 0 ? -e.delta : 0),
+    );
     return totalUsed / days;
   }
 
   Resource withEntry(StockEntry entry) => Resource(
+    id: id,
+    name: name,
+    unit: unit,
+    initialQuantity: initialQuantity,
+    createdAt: createdAt,
+    entries: [...entries, entry],
+  );
+
+  Resource withDetails({required String name, required String unit}) =>
+      Resource(
         id: id,
         name: name,
         unit: unit,
         initialQuantity: initialQuantity,
         createdAt: createdAt,
-        entries: [...entries, entry],
+        entries: entries,
       );
 
   bool wouldGoNegative(StockEntry entry) =>
       withEntry(entry).timeline.any((p) => p.quantity < 0);
 
   static List<StockEntry> _chronological(Iterable<StockEntry> entries) {
-    return entries.toList()
-      ..sort((a, b) {
-        final byTime = a.time.compareTo(b.time);
-        return byTime != 0 ? byTime : b.delta.compareTo(a.delta);
-      });
+    return entries.toList()..sort((a, b) {
+      final byTime = a.time.compareTo(b.time);
+      return byTime != 0 ? byTime : b.delta.compareTo(a.delta);
+    });
   }
 }

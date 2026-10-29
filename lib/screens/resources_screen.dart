@@ -20,6 +20,7 @@ class ResourcesScreen extends StatefulWidget {
     required this.onAdd,
     required this.onLog,
     required this.onDelete,
+    required this.onRename,
   });
 
   final void Function(LogEntry) onEditLog;
@@ -27,12 +28,14 @@ class ResourcesScreen extends StatefulWidget {
   final void Function(Resource) onAdd;
   final void Function(String id, StockEntry entry) onLog;
   final void Function(String id) onDelete;
+  final void Function(String id, String name, String unit) onRename;
 
   @override
   State<ResourcesScreen> createState() => _ResourcesScreenState();
 }
 
-class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAliveClientMixin {
+class _ResourcesScreenState extends State<ResourcesScreen>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -40,12 +43,14 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
     showDialog<void>(
       context: context,
       builder: (_) => _AddResourceDialog(
-        onSave: (name, quantity, unit) => widget.onAdd(Resource.create(
-          id: 'resource_${DateTime.now().microsecondsSinceEpoch}',
-          name: name,
-          unit: unit,
-          initialQuantity: quantity,
-        )),
+        onSave: (name, quantity, unit) => widget.onAdd(
+          Resource.create(
+            id: 'resource_${DateTime.now().microsecondsSinceEpoch}',
+            name: name,
+            unit: unit,
+            initialQuantity: quantity,
+          ),
+        ),
       ),
     );
   }
@@ -62,6 +67,16 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
     );
   }
 
+  void _renameResource(Resource resource) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => _RenameResourceDialog(
+        resource: resource,
+        onSave: (name, unit) => widget.onRename(resource.id, name, unit),
+      ),
+    );
+  }
+
   void _logStockChange(String id, int delta, String info, DateTime time) {
     final index = widget.resources.indexWhere((r) => r.id == id);
     if (index == -1) return;
@@ -70,12 +85,15 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
     widget.onLog(id, StockEntry(time, delta, info));
 
     final note = info.isEmpty ? '' : ', $info';
-    widget.onEditLog(LogEntry(
-      time: time,
-      resourceId: id,
-      message: 'Edit ${resource.name}: ${signedDelta(delta)} '
-          '${resource.unit}$note',
-    ));
+    widget.onEditLog(
+      LogEntry(
+        time: time,
+        resourceId: id,
+        message:
+            'Edit ${resource.name}: ${signedDelta(delta)} '
+            '${resource.unit}$note',
+      ),
+    );
   }
 
   @override
@@ -103,22 +121,30 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
           child: const Text('Add Resource'),
         ),
         const SizedBox(height: 16),
-        ...widget.resources.map((resource) => _ResourceCard(
-          key: ValueKey(resource.id),
-          resource: resource,
-          onEdit: () => _editResource(resource),
-        )),
+        ...widget.resources.map(
+          (resource) => _ResourceCard(
+            key: ValueKey(resource.id),
+            resource: resource,
+            onEdit: () => _editResource(resource),
+            onRename: () => _renameResource(resource),
+          ),
+        ),
       ],
     );
   }
 }
 
-
 class _ResourceCard extends StatelessWidget {
-  const _ResourceCard({super.key, required this.resource, required this.onEdit});
+  const _ResourceCard({
+    super.key,
+    required this.resource,
+    required this.onEdit,
+    required this.onRename,
+  });
 
   final Resource resource;
   final VoidCallback onEdit;
+  final VoidCallback onRename;
 
   @override
   Widget build(BuildContext context) {
@@ -142,8 +168,22 @@ class _ResourceCard extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.edit, size: 20, color: AppColors.accent),
+                    icon: const Icon(
+                      Icons.edit,
+                      size: 20,
+                      color: AppColors.accent,
+                    ),
+                    tooltip: 'Log stock change',
                     onPressed: onEdit,
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.drive_file_rename_outline,
+                      size: 20,
+                      color: AppColors.accent,
+                    ),
+                    tooltip: 'Rename',
+                    onPressed: onRename,
                   ),
                 ],
               ),
@@ -157,11 +197,14 @@ class _ResourceCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               if (resource.avgPerDay case final avg?)
-                Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
-                    style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.accent,
-                        fontWeight: FontWeight.w500)),
+                Text(
+                  'AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.accent,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               const SizedBox(height: 12),
               SizedBox(
                 height: 180,
@@ -187,14 +230,20 @@ class _StockChart extends StatelessWidget {
 
   static const _minSpanHours = 1 / 60;
 
-  static const _axisStyle = TextStyle(fontSize: 10, color: AppColors.textSecondary);
+  static const _axisStyle = TextStyle(
+    fontSize: 10,
+    color: AppColors.textSecondary,
+  );
 
   @override
   Widget build(BuildContext context) {
     final timeline = resource.timeline;
     if (timeline.isEmpty) {
       return const Center(
-        child: Text('No history yet', style: TextStyle(color: AppColors.textSecondary)),
+        child: Text(
+          'No history yet',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
       );
     }
 
@@ -243,8 +292,12 @@ class _StockChart extends StatelessWidget {
         ),
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -275,7 +328,10 @@ class _StockChart extends StatelessWidget {
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
             tooltipRoundedRadius: 8,
-            tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            tooltipPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
             tooltipMargin: 8,
             getTooltipItems: (touched) => [
               for (final spot in touched)
@@ -315,7 +371,8 @@ class _AddResourceDialogState extends State<_AddResourceDialog> {
     super.dispose();
   }
 
-  String? _required(String? v) => (v == null || v.trim().isEmpty) ? 'Required' : null;
+  String? _required(String? v) =>
+      (v == null || v.trim().isEmpty) ? 'Required' : null;
 
   String? _validateQuantity(String? v) {
     final n = int.tryParse(v?.trim() ?? '');
@@ -338,7 +395,10 @@ class _AddResourceDialogState extends State<_AddResourceDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: AppColors.card,
-      title: const Text('Add Resource', style: TextStyle(color: AppColors.textPrimary)),
+      title: const Text(
+        'Add Resource',
+        style: TextStyle(color: AppColors.textPrimary),
+      ),
       insetPadding: const EdgeInsets.all(20),
       content: Form(
         key: _formKey,
@@ -376,6 +436,86 @@ class _AddResourceDialogState extends State<_AddResourceDialog> {
         IconButton(
           icon: const Icon(Icons.add_circle, color: AppColors.accent),
           tooltip: 'Create',
+          onPressed: _submit,
+        ),
+      ],
+    );
+  }
+}
+
+class _RenameResourceDialog extends StatefulWidget {
+  const _RenameResourceDialog({required this.resource, required this.onSave});
+
+  final Resource resource;
+  final void Function(String name, String unit) onSave;
+
+  @override
+  State<_RenameResourceDialog> createState() => _RenameResourceDialogState();
+}
+
+class _RenameResourceDialogState extends State<_RenameResourceDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _name = TextEditingController(
+    text: widget.resource.name,
+  );
+  late final TextEditingController _unit = TextEditingController(
+    text: widget.resource.unit,
+  );
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _unit.dispose();
+    super.dispose();
+  }
+
+  String? _required(String? v) =>
+      (v == null || v.trim().isEmpty) ? 'Required' : null;
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+    widget.onSave(_name.text.trim(), _unit.text.trim());
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.card,
+      title: const Text(
+        'Rename Resource',
+        style: TextStyle(color: AppColors.textPrimary),
+      ),
+      insetPadding: const EdgeInsets.all(20),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              controller: _name,
+              decoration: const InputDecoration(labelText: 'Resource Name'),
+              validator: _required,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _unit,
+              decoration: const InputDecoration(labelText: 'Unit'),
+              validator: _required,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.cancel, color: AppColors.textSecondary),
+          tooltip: 'Cancel',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        IconButton(
+          icon: const Icon(Icons.save, color: AppColors.accent),
+          tooltip: 'Save',
           onPressed: _submit,
         ),
       ],
@@ -427,7 +567,13 @@ class _EditResourceDialogState extends State<_EditResourceDialog> {
     if (time == null || !mounted) return;
 
     setState(() {
-      _dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      _dateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
     });
   }
 
@@ -527,7 +673,10 @@ Future<bool> _confirmDelete(BuildContext context) async {
     context: context,
     builder: (dialogContext) => AlertDialog(
       backgroundColor: AppColors.card,
-      title: const Text('Confirm Delete', style: TextStyle(color: AppColors.textPrimary)),
+      title: const Text(
+        'Confirm Delete',
+        style: TextStyle(color: AppColors.textPrimary),
+      ),
       content: const Text(
         'Are you sure you want to delete this resource? Its log entries will '
         'be deleted too.',

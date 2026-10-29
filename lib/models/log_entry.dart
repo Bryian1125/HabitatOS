@@ -6,11 +6,7 @@ import 'package:flutter/foundation.dart';
 /// order, filter, link and format entries without re-parsing text.
 @immutable
 class LogEntry {
-  const LogEntry({
-    required this.time,
-    required this.message,
-    this.resourceId,
-  });
+  const LogEntry({required this.time, required this.message, this.resourceId});
 
   /// When the logged change happened (the user-picked date, not the import
   /// time).
@@ -23,14 +19,14 @@ class LogEntry {
   final String? resourceId;
 
   Map<String, dynamic> toJson() => {
-        'time': time.toIso8601String(),
-        'message': message,
-        'resourceId': resourceId,
-      };
+    'time': time.toIso8601String(),
+    'message': message,
+    'resourceId': resourceId,
+  };
 
   static LogEntry fromJson(Map<String, dynamic> json) => LogEntry(
-        time: DateTime.parse(json['time'] as String),
-        message: json['message'] as String,
-        resourceId: json['resourceId'] as String?,
-      );
+    time: DateTime.parse(json['time'] as String),
+    message: json['message'] as String,
+    resourceId: json['resourceId'] as String?,
+  );
 }

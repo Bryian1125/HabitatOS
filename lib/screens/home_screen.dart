@@ -9,7 +9,11 @@ import '../gradient_border.dart';
 import '../utils/format.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, this.logs = const [], this.resources = const []});
+  const HomeScreen({
+    super.key,
+    this.logs = const [],
+    this.resources = const [],
+  });
 
   final List<LogEntry> logs;
   final List<Resource> resources;
@@ -45,22 +49,36 @@ class HomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(10.5),
             ),
             padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('LOGS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                  const SizedBox(height: 20),
-                  ...logs.reversed.take(12).map((entry) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Text(
-                      '${formatDateTime(entry.time)}: ${entry.message}',
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'LOGS',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ...logs.reversed
+                    .take(12)
+                    .map(
+                      (entry) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(
+                          '${formatDateTime(entry.time)}: ${entry.message}',
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
                     ),
-                  )),
-                ],
-              ),
+              ],
             ),
           ),
+        ),
       ],
     );
   }
@@ -103,11 +121,14 @@ class _ResourcePanel extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               if (resource.avgPerDay case final avg?)
-                Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
-                    style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.accent,
-                        fontWeight: FontWeight.w500)),
+                Text(
+                  'AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.accent,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               const SizedBox(height: 12),
               Expanded(child: _StockChart(resource: resource)),
             ],
@@ -126,7 +147,10 @@ class _EmptyChart extends StatelessWidget {
   static const _spanHours = 1.0;
   static const _xDivisions = 3;
 
-  static const _axisStyle = TextStyle(fontSize: 10, color: AppColors.textSecondary);
+  static const _axisStyle = TextStyle(
+    fontSize: 10,
+    color: AppColors.textSecondary,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -147,8 +171,12 @@ class _EmptyChart extends StatelessWidget {
           ),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -193,14 +221,20 @@ class _StockChart extends StatelessWidget {
 
   static const _minSpanHours = 1 / 60;
 
-  static const _axisStyle = TextStyle(fontSize: 10, color: AppColors.textSecondary);
+  static const _axisStyle = TextStyle(
+    fontSize: 10,
+    color: AppColors.textSecondary,
+  );
 
   @override
   Widget build(BuildContext context) {
     final timeline = resource.timeline;
     if (timeline.isEmpty) {
       return const Center(
-        child: Text('No history yet', style: TextStyle(color: AppColors.textSecondary)),
+        child: Text(
+          'No history yet',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
       );
     }
 
@@ -251,8 +285,12 @@ class _StockChart extends StatelessWidget {
           ),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -272,7 +310,9 @@ class _StockChart extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
-                      showClockTime ? '${t.hour}:${t.minute.toString().padLeft(2, '0')}' : '${t.month}/${t.day}',
+                      showClockTime
+                          ? '${t.hour}:${t.minute.toString().padLeft(2, '0')}'
+                          : '${t.month}/${t.day}',
                       style: _axisStyle,
                     ),
                   );
@@ -296,5 +336,3 @@ class _StockChart extends StatelessWidget {
     );
   }
 }
-
-

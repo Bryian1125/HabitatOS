@@ -21,8 +21,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<LogEntry> _resourceLogs = [];
 
   final List<Resource> _resources = [
-    Resource.create(id: 'food_1', name: 'Food', unit: 'kg', initialQuantity: 100),
-    Resource.create(id: 'water_1', name: 'Water', unit: 'L', initialQuantity: 100),
+    Resource.create(
+      id: 'food_1',
+      name: 'Food',
+      unit: 'kg',
+      initialQuantity: 100,
+    ),
+    Resource.create(
+      id: 'water_1',
+      name: 'Water',
+      unit: 'L',
+      initialQuantity: 100,
+    ),
   ];
 
   List<Widget> get _pages => [
@@ -33,6 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onAdd: _addResource,
       onLog: _logResource,
       onDelete: _deleteResource,
+      onRename: _renameResource,
     ),
     LogsScreen(logs: _resourceLogs),
     const SettingsScreen(),
@@ -47,6 +58,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (index == -1) return;
     setState(() {
       _resources[index] = _resources[index].withEntry(entry);
+    });
+  }
+
+  void _renameResource(String id, String name, String unit) {
+    final index = _resources.indexWhere((r) => r.id == id);
+    if (index == -1) return;
+    setState(() {
+      _resources[index] = _resources[index].withDetails(name: name, unit: unit);
     });
   }
 
@@ -106,12 +125,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         });
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                         child: Text(
                           _navLabels[index],
                           style: TextStyle(
-                            color: selected ? AppColors.accent : AppColors.textSecondary,
-                            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                            color: selected
+                                ? AppColors.accent
+                                : AppColors.textSecondary,
+                            fontWeight: selected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
                       ),
