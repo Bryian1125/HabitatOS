@@ -45,13 +45,15 @@ class LogsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Newest first, matching the home screen preview.
+    final entries = logs.reversed.toList();
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: logs.length + 1,
+      itemCount: entries.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) return _buildHeader(context);
 
-        final entry = logs[index - 1];
+        final entry = entries[index - 1];
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: GradientBorder(
