@@ -13,9 +13,11 @@ class HomeScreen extends StatelessWidget {
   final List<Resource> resources;
 
   /// The resource with the most logged entries; ties go to the most recently edited.
+  /// Null until a resource has activity beyond its initial quantity.
   Resource? get _mostActive {
-    if (resources.isEmpty) return null;
-    return resources.reduce((a, b) {
+    final active = resources.where((r) => r.entries.length > 1).toList();
+    if (active.isEmpty) return null;
+    return active.reduce((a, b) {
       final byEntries = a.entries.length.compareTo(b.entries.length);
       if (byEntries != 0) return byEntries > 0 ? a : b;
       return a.entries.last.time.isAfter(b.entries.last.time) ? a : b;
@@ -70,49 +72,112 @@ class _ResourcePanel extends StatelessWidget {
     return GradientBorder(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: resource == null
-            ? const Center(
-                child: Text(
-                  'No resources yet',
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${resource.name.toUpperCase()} (${resource.unit})',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '${resource.quantity} ${resource.unit}',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Builder(builder: (context) {
-                    final entries = resource.entries;
-                    if (entries.length < 2) return const SizedBox.shrink();
-                    final first = entries.first.time;
-                    final last = entries.last.time;
-                    final days = last.difference(first).inDays;
-                    if (days <= 0) return const SizedBox.shrink();
-                    final totalUsed = entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
-                    final avg = totalUsed / days;
-                    return Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
-                      style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w500));
-                  }),
-                  const SizedBox(height: 12),
-                  Expanded(child: _StockChart(resource: resource)),
-                ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              resource == null
+                  ? 'NO DATA'
+                  : '${resource.name.toUpperCase()} (${resource.unit})',
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
               ),
+            ),
+            const SizedBox(height: 12),
+            if (resource == null)
+              const Expanded(child: _EmptyChart())
+            else ...[
+              Text(
+                '${resource.quantity} ${resource.unit}',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Builder(builder: (context) {
+                final entries = resource.entries;
+                if (entries.length < 2) return const SizedBox.shrink();
+                final first = entries.first.time;
+                final last = entries.last.time;
+                final days = last.difference(first).inDays;
+                if (days <= 0) return const SizedBox.shrink();
+                final totalUsed = entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
+                final avg = totalUsed / days;
+                return Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
+                  style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w500));
+              }),
+              const SizedBox(height: 12),
+              Expanded(child: _StockChart(resource: resource)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyChart extends StatelessWidget {
+  const _EmptyChart();
+
+  static const _yDivisions = 4;
+  static const _maxY = 100.0;
+  static const _spanHours = 1.0;
+  static const _xDivisions = 3;
+
+  static const _axisStyle = TextStyle(fontSize: 10, color: AppColors.textSecondary);
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, right: 16),
+      child: LineChart(
+        LineChartData(
+          minX: 0,
+          maxX: _spanHours,
+          minY: 0,
+          maxY: _maxY,
+          lineBarsData: const [],
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: _maxY / _yDivisions,
+          ),
+          borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 36,
+                interval: _maxY / _yDivisions,
+                getTitlesWidget: (value, meta) =>
+                    Text(value.toInt().toString(), style: _axisStyle),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 24,
+                interval: _spanHours / _xDivisions,
+                getTitlesWidget: (value, meta) {
+                  final t = now.add(Duration(minutes: (value * 60).round()));
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      '${t.hour}:${t.minute.toString().padLeft(2, '0')}',
+                      style: _axisStyle,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
