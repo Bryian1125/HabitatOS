@@ -130,7 +130,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Expanded(
           child: Container(
             color: AppColors.background,
-            child: _pages[_selectedIndex],
+            child: IndexedStack(index: _selectedIndex, children: _pages),
           ),
         ),
       ],
