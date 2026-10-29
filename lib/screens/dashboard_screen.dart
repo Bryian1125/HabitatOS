@@ -51,7 +51,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _deleteResource(String id) {
-    setState(() => _resources.removeWhere((r) => r.id == id));
+    setState(() {
+      _resources.removeWhere((r) => r.id == id);
+      _resourceLogs.removeWhere((log) => log.resourceId == id);
+    });
   }
 
   void _addResourceLog(LogEntry entry) {

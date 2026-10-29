@@ -529,7 +529,8 @@ Future<bool> _confirmDelete(BuildContext context) async {
       backgroundColor: AppColors.card,
       title: const Text('Confirm Delete', style: TextStyle(color: AppColors.textPrimary)),
       content: const Text(
-        'Are you sure you want to delete this resource?',
+        'Are you sure you want to delete this resource? Its log entries will '
+        'be deleted too.',
         style: TextStyle(color: AppColors.textSecondary),
       ),
       actions: [
