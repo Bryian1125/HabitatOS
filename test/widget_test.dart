@@ -230,4 +230,35 @@ void main() {
     expect(find.text('90 kg'), findsNothing);
     expect(find.text('100 kg'), findsWidgets);
   });
+
+  testWidgets('deleting all data from settings empties the app', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Resources'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('100 kg'), findsWidgets);
+
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Delete all data'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Resources'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Resource'), findsOneWidget);
+    expect(find.text('100 kg'), findsNothing);
+  });
 }

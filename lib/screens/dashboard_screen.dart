@@ -84,8 +84,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onDeleteLog: _deleteLog,
       onClearLogs: _clearLogs,
     ),
-    const SettingsScreen(),
+    SettingsScreen(onDeleteAllData: _deleteAllData),
   ];
+
+  void _deleteAllData() {
+    setState(() {
+      _resources.clear();
+      _resourceLogs.clear();
+    });
+    _persist();
+  }
 
   void _addResource(Resource resource) {
     setState(() => _resources.add(resource));
