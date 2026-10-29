@@ -23,6 +23,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<LogEntry> _resourceLogs = [];
   final List<Resource> _resources = [];
   bool _loaded = false;
+  int _graphLineColor = 0xFF39FF14; // electric-neon-green
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _resourceLogs
         ..clear()
         ..addAll(data.logs);
+      _graphLineColor = data.graphLineColor;
       _loaded = true;
     });
 
@@ -65,26 +67,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ];
 
   Future<void> _save() => _storage.save(
-        HabitatData(resources: _resources, logs: _resourceLogs),
+        HabitatData(
+          resources: _resources,
+          logs: _resourceLogs,
+          graphLineColor: _graphLineColor,
+        ),
       );
 
   void _persist() => unawaited(_save());
 
   List<Widget> get _pages => [
-    HomeScreen(logs: _resourceLogs, resources: _resources),
+    HomeScreen(
+      logs: _resourceLogs,
+      resources: _resources,
+      graphLineColor: _graphLineColor,
+    ),
     ResourcesScreen(
       resources: _resources,
       onAdd: _addResource,
       onLog: _applyStockChange,
       onDelete: _deleteResource,
-      onRename: _renameResource,
+      onEdit: _editResource,
+      graphLineColor: _graphLineColor,
     ),
     LogsScreen(
       logs: _resourceLogs,
       onDeleteLog: _deleteLog,
       onClearLogs: _clearLogs,
     ),
-    SettingsScreen(onDeleteAllData: _deleteAllData),
+    SettingsScreen(
+      onDeleteAllData: _deleteAllData,
+      onGraphLineColorChanged: (color) => setState(() {
+        _graphLineColor = color;
+        _persist();
+      }),
+      currentGraphLineColor: _graphLineColor,
+    ),
   ];
 
   void _deleteAllData() {
@@ -111,17 +129,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
     _persist();
 
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(log.message),
-          action: SnackBarAction(
-            label: 'UNDO',
-            onPressed: () => _revertStockChange(previous, log),
-          ),
-        ),
-      );
+    // Show custom toast with undo action
+    _showUndoToast(log.message, previous, log);
+  }
+
+  void _showUndoToast(String message, Resource previous, LogEntry log) {
+    final overlay = Overlay.of(context);
+    late OverlayEntry entry;
+    Timer? dismissTimer;
+
+    entry = OverlayEntry(
+      builder: (context) => _UndoToastWidget(
+        message: message,
+        onUndo: () {
+          dismissTimer?.cancel();
+          _revertStockChange(previous, log);
+          entry.remove();
+        },
+        onDismiss: () {
+          dismissTimer?.cancel();
+          entry.remove();
+        },
+      ),
+    );
+
+    overlay.insert(entry);
+
+    // Auto-dismiss after 3 seconds
+    dismissTimer = Timer(const Duration(seconds: 3), () {
+      if (entry.mounted) entry.remove();
+    });
   }
 
   void _revertStockChange(Resource previous, LogEntry log) {
@@ -140,6 +177,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _resources[index] = _resources[index].withDetails(name: name, unit: unit);
     });
     _persist();
+  }
+
+  void _editResource(Resource resource) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => _EditResourceDetailsDialog(
+        resource: resource,
+        onSave: (name, unit) => _renameResource(resource.id, name, unit),
+        onDelete: () => _deleteResource(resource.id),
+      ),
+    );
   }
 
   void _deleteResource(String id) {
@@ -337,5 +385,265 @@ class _SidePanelClockState extends State<_SidePanelClock> {
   void dispose() {
     _timer.cancel();
     super.dispose();
+  }
+}
+/// Toast widget with undo action for stock changes
+class _UndoToastWidget extends StatefulWidget {
+  const _UndoToastWidget({
+    required this.message,
+    required this.onUndo,
+    required this.onDismiss,
+  });
+
+  final String message;
+  final VoidCallback onUndo;
+  final VoidCallback onDismiss;
+
+  @override
+  State<_UndoToastWidget> createState() => _UndoToastWidgetState();
+}
+
+class _UndoToastWidgetState extends State<_UndoToastWidget>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<Offset> _slideAnimation;
+  late final Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    ));
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    ));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _dismiss() async {
+    await _controller.reverse();
+    widget.onDismiss();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 24,
+      right: 24,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              constraints: const BoxConstraints(maxWidth: 360),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border, width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      widget.message,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    key: const Key('undo_toast_button'),
+                    onPressed: () {
+                      widget.onUndo();
+                      _dismiss();
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.accent,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                    child: const Text('UNDO'),
+                  ),
+                  const SizedBox(width: 4),
+                  InkWell(
+                    onTap: _dismiss,
+                    borderRadius: BorderRadius.circular(16),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.close,
+                        size: 18,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dialog for editing resource details (rename + delete)
+class _EditResourceDetailsDialog extends StatefulWidget {
+  const _EditResourceDetailsDialog({
+    required this.resource,
+    required this.onSave,
+    required this.onDelete,
+  });
+
+  final Resource resource;
+  final void Function(String name, String unit) onSave;
+  final VoidCallback onDelete;
+
+  @override
+  State<_EditResourceDetailsDialog> createState() =>
+      _EditResourceDetailsDialogState();
+}
+
+class _EditResourceDetailsDialogState extends State<_EditResourceDetailsDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _name =
+      TextEditingController(text: widget.resource.name);
+  late final TextEditingController _unit =
+      TextEditingController(text: widget.resource.unit);
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _unit.dispose();
+    super.dispose();
+  }
+
+  String? _required(String? v) =>
+      (v == null || v.trim().isEmpty) ? 'Required' : null;
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+    widget.onSave(_name.text.trim(), _unit.text.trim());
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _delete() async {
+    if (!await _confirmDelete(context) || !mounted) return;
+    widget.onDelete();
+    Navigator.of(context).pop();
+  }
+
+  Future<bool> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.card,
+        title: const Text(
+          'Delete Resource',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: const Text(
+          'Are you sure you want to delete this resource? Its log entries '
+          'will be deleted too.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete',
+                style: TextStyle(color: AppColors.critical)),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.card,
+      title: const Text(
+        'Edit Resource',
+        style: TextStyle(color: AppColors.textPrimary),
+      ),
+      insetPadding: const EdgeInsets.all(20),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              controller: _name,
+              decoration: const InputDecoration(labelText: 'Resource Name'),
+              validator: _required,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _unit,
+              decoration: const InputDecoration(labelText: 'Unit'),
+              validator: _required,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.cancel, color: AppColors.textSecondary),
+          tooltip: 'Cancel',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete, color: AppColors.critical),
+          tooltip: 'Delete',
+          onPressed: _delete,
+        ),
+        IconButton(
+          icon: const Icon(Icons.save, color: AppColors.accent),
+          tooltip: 'Save',
+          onPressed: _submit,
+        ),
+      ],
+    );
   }
 }
