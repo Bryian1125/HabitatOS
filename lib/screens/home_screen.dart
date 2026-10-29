@@ -102,18 +102,12 @@ class _ResourcePanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Builder(builder: (context) {
-                final entries = resource.entries;
-                if (entries.length < 2) return const SizedBox.shrink();
-                final first = entries.first.time;
-                final last = entries.last.time;
-                final days = last.difference(first).inDays;
-                if (days <= 0) return const SizedBox.shrink();
-                final totalUsed = entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
-                final avg = totalUsed / days;
-                return Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
-                  style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w500));
-              }),
+              if (resource.avgPerDay case final avg?)
+                Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
+                    style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w500)),
               const SizedBox(height: 12),
               Expanded(child: _StockChart(resource: resource)),
             ],

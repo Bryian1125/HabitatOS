@@ -81,6 +81,32 @@ void main() {
       expect(updated.name, original.name);
       expect(updated.unit, original.unit);
     });
+
+    test('avgPerDay divides usage by the elapsed span, not whole days', () {
+      final resource = Resource.create(
+        id: 'food',
+        name: 'Food',
+        unit: 'kg',
+        initialQuantity: 100,
+        createdAt: DateTime(2026, 1, 1, 0),
+      )
+          .withEntry(StockEntry(DateTime(2026, 1, 1, 3), -6))
+          .withEntry(StockEntry(DateTime(2026, 1, 1, 6), -6));
+
+      // 12 kg over 6 hours is 48 kg/day. The old whole-day maths saw a zero
+      // day span and hid the figure entirely.
+      expect(resource.avgPerDay, closeTo(48, 0.001));
+    });
+
+    test('avgPerDay needs two entries on different timestamps', () {
+      final created = DateTime(2026, 1, 1);
+      final fresh =
+          Resource.create(id: 'a', name: 'A', unit: 'kg', initialQuantity: 5, createdAt: created);
+      final sameTime = fresh.withEntry(StockEntry(created, -1));
+
+      expect(fresh.avgPerDay, isNull);
+      expect(sameTime.avgPerDay, isNull);
+    });
   });
 
   testWidgets('app boots on the home tab and navigates to resources',

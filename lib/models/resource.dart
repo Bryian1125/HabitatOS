@@ -53,6 +53,21 @@ class Resource {
     return [for (final e in entries) StockPoint(e.time, total += e.delta)];
   }
 
+  /// Average units consumed per day across the logged span.
+  ///
+  /// Null while there is nothing to average: fewer than two entries, entries
+  /// that share a timestamp, or a span shorter than a minute. The span is
+  /// measured in seconds so a five hour history is not treated as zero days.
+  double? get avgPerDay {
+    if (entries.length < 2) return null;
+    final span = entries.last.time.difference(entries.first.time);
+    final days = span.inSeconds / Duration.secondsPerDay;
+    if (days < 1 / Duration.minutesPerDay) return null;
+    final totalUsed =
+        entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
+    return totalUsed / days;
+  }
+
   Resource withEntry(StockEntry entry) => Resource(
         id: id,
         name: name,
