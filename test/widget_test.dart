@@ -6,7 +6,7 @@ import 'package:habitatos/models/resource.dart';
 
 void main() {
   group('Resource', () {
-    test('create seeds the initial quantity at creation time', () {
+    test('create keeps the initial quantity as a baseline, not a delta', () {
       final created = DateTime(2026, 1, 1, 8);
       final resource = Resource.create(
         id: 'food',
@@ -17,9 +17,27 @@ void main() {
       );
 
       expect(resource.quantity, 100);
-      expect(resource.entries, hasLength(1));
+      expect(resource.initialQuantity, 100);
+      expect(resource.entries, isEmpty);
       expect(resource.timeline.single.time, created);
       expect(resource.timeline.single.quantity, 100);
+    });
+
+    test('a change backdated before creation still stacks on the baseline', () {
+      final created = DateTime(2026, 1, 10);
+      final resource = Resource.create(
+        id: 'food',
+        name: 'Food',
+        unit: 'kg',
+        initialQuantity: 100,
+        createdAt: created,
+      ).withEntry(StockEntry(DateTime(2026, 1, 5), -10));
+
+      // The old model made the starting 100 sort after the -10 entry, so the
+      // timeline read -10 then 90.
+      expect(resource.quantity, 90);
+      expect(resource.timeline.map((p) => p.quantity), [100, 90]);
+      expect(resource.timeline.first.time, DateTime(2026, 1, 5));
     });
 
     test('quantity sums every delta', () {
@@ -41,6 +59,8 @@ void main() {
         id: 'food',
         name: 'Food',
         unit: 'kg',
+        initialQuantity: 10,
+        createdAt: DateTime(2026, 1, 1),
         entries: [
           StockEntry(late, -5),
           StockEntry(early, 50),
@@ -48,7 +68,7 @@ void main() {
       );
 
       expect(resource.entries.map((e) => e.time), [early, late]);
-      expect(resource.timeline.map((p) => p.quantity), [50, 45]);
+      expect(resource.timeline.map((p) => p.quantity), [10, 60, 55]);
     });
 
     test('wouldGoNegative rejects an overdraft at any point in history', () {
@@ -75,8 +95,10 @@ void main() {
       );
       final updated = original.withEntry(StockEntry(DateTime(2026, 2, 1), -4));
 
-      expect(original.entries, hasLength(1));
-      expect(updated.entries, hasLength(2));
+      expect(original.entries, isEmpty);
+      expect(updated.entries, hasLength(1));
+      expect(updated.initialQuantity, original.initialQuantity);
+      expect(updated.createdAt, original.createdAt);
       expect(updated.id, original.id);
       expect(updated.name, original.name);
       expect(updated.unit, original.unit);

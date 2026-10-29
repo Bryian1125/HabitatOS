@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
   /// The resource with the most logged entries; ties go to the most recently edited.
   /// Null until a resource has activity beyond its initial quantity.
   Resource? get _mostActive {
-    final active = resources.where((r) => r.entries.length > 1).toList();
+    final active = resources.where((r) => r.entries.isNotEmpty).toList();
     if (active.isEmpty) return null;
     return active.reduce((a, b) {
       final byEntries = a.entries.length.compareTo(b.entries.length);

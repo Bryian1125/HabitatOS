@@ -22,6 +22,8 @@ class Resource {
     required this.id,
     required this.name,
     required this.unit,
+    required this.initialQuantity,
+    required this.createdAt,
     required Iterable<StockEntry> entries,
   }) : entries = List.unmodifiable(_chronological(entries));
 
@@ -36,7 +38,9 @@ class Resource {
       id: id,
       name: name,
       unit: unit,
-      entries: [StockEntry(createdAt ?? DateTime.now(), initialQuantity)],
+      initialQuantity: initialQuantity,
+      createdAt: createdAt ?? DateTime.now(),
+      entries: const [],
     );
   }
 
@@ -44,23 +48,39 @@ class Resource {
   final String name;
   final String unit;
 
+  /// Stock on hand when the resource was added. Kept separate from [entries]
+  /// so a backdated change cannot make the starting stock appear to happen
+  /// after the change that consumed it.
+  final int initialQuantity;
+
+  final DateTime createdAt;
+
   final List<StockEntry> entries;
 
-  int get quantity => entries.fold(0, (sum, e) => sum + e.delta);
+  int get quantity => entries.fold(initialQuantity, (sum, e) => sum + e.delta);
 
+  /// Stock on hand over time, starting with the baseline at the earliest
+  /// known moment.
   List<StockPoint> get timeline {
-    var total = 0;
-    return [for (final e in entries) StockPoint(e.time, total += e.delta)];
+    final origin = entries.isNotEmpty && entries.first.time.isBefore(createdAt)
+        ? entries.first.time
+        : createdAt;
+    var total = initialQuantity;
+    return [
+      StockPoint(origin, total),
+      for (final e in entries) StockPoint(e.time, total += e.delta),
+    ];
   }
 
-  /// Average units consumed per day across the logged span.
+  /// Average units consumed per day across the tracked span.
   ///
-  /// Null while there is nothing to average: fewer than two entries, entries
+  /// Null while there is nothing to average: no logged change yet, entries
   /// that share a timestamp, or a span shorter than a minute. The span is
   /// measured in seconds so a five hour history is not treated as zero days.
   double? get avgPerDay {
-    if (entries.length < 2) return null;
-    final span = entries.last.time.difference(entries.first.time);
+    final points = timeline;
+    if (entries.isEmpty) return null;
+    final span = points.last.time.difference(points.first.time);
     final days = span.inSeconds / Duration.secondsPerDay;
     if (days < 1 / Duration.minutesPerDay) return null;
     final totalUsed =
@@ -72,6 +92,8 @@ class Resource {
         id: id,
         name: name,
         unit: unit,
+        initialQuantity: initialQuantity,
+        createdAt: createdAt,
         entries: [...entries, entry],
       );
 
