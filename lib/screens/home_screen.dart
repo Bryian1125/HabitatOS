@@ -12,10 +12,12 @@ class HomeScreen extends StatelessWidget {
     super.key,
     this.logs = const [],
     this.resources = const [],
+    this.graphLineColor,
   });
 
   final List<LogEntry> logs;
   final List<Resource> resources;
+  final int? graphLineColor;
 
   /// The resource with the most logged entries; ties go to the most recently edited.
   /// Null until a resource has activity beyond its initial quantity.
@@ -37,7 +39,10 @@ class HomeScreen extends StatelessWidget {
       children: [
         SizedBox(
           height: h * 5 / 7,
-          child: _ResourcePanel(resource: _mostActive),
+          child: _ResourcePanel(
+            resource: _mostActive,
+            graphLineColor: graphLineColor,
+          ),
         ),
         const SizedBox(height: 16),
         // Bottom row: logs full width
@@ -93,9 +98,10 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _ResourcePanel extends StatelessWidget {
-  const _ResourcePanel({this.resource});
+  const _ResourcePanel({this.resource, this.graphLineColor});
 
   final Resource? resource;
+  final int? graphLineColor;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +144,9 @@ class _ResourcePanel extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 12),
-              Expanded(child: StockChart(resource: resource)),
+              Expanded(
+                child: StockChart(resource: resource, lineColor: graphLineColor),
+              ),
             ],
           ],
         ),
