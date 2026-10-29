@@ -3,6 +3,7 @@ import 'dart:async';
 
 import '../models/log_entry.dart';
 import '../theme.dart';
+import '../utils/format.dart';
 import 'home_screen.dart';
 import 'resources_screen.dart';
 import 'logs_screen.dart';
@@ -246,8 +247,6 @@ class _SidePanelClockState extends State<_SidePanelClock> {
     });
   }
 
-  String _pad(int value) => value.toString().padLeft(2, '0');
-
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -260,7 +259,7 @@ class _SidePanelClockState extends State<_SidePanelClock> {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              '${_pad(now.hour)}:${_pad(now.minute)}:${_pad(now.second)}',
+              '${two(now.hour)}:${two(now.minute)}:${two(now.second)}',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 32,
@@ -270,7 +269,7 @@ class _SidePanelClockState extends State<_SidePanelClock> {
           ),
           const SizedBox(height: 2),
           Text(
-            'DMY:${_pad(now.day)}.${_pad(now.month)}.${now.year}',
+            'DMY:${two(now.day)}.${two(now.month)}.${now.year}',
             style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,

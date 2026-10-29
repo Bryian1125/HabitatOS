@@ -204,7 +204,7 @@ class _EmptyChart extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
-                      '${t.hour}:${t.minute.toString().padLeft(2, '0')}',
+                      formatTime(t),
                       style: _axisStyle,
                     ),
                   );
