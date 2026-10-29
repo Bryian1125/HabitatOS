@@ -222,14 +222,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('90 kg'), findsWidgets);
-    // Wait for toast to appear and animate
-    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('UNDO'), findsOneWidget);
 
-    // Find the UNDO button in the toast by key
-    final undoButton = find.byKey(const Key('undo_toast_button'));
-    expect(undoButton, findsOneWidget);
-
-    await tester.tap(undoButton);
+    await tester.tap(find.text('UNDO'));
     await tester.pumpAndSettle();
 
     expect(find.text('90 kg'), findsNothing);
