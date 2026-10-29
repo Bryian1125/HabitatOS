@@ -11,25 +11,6 @@ Habitat resource tracker for analog space missions
 - Review, delete or clear the activity log.
 - Data is stored on the device and survives a restart.
 
-## Requirements
-
-- Flutter 3.35 or newer (Dart 3.12+)
-- A platform SDK for the target you want to run on (Visual Studio for Windows,
-  Xcode for macOS/iOS, Android SDK for Android, or any modern browser for web)
-
-## Run it
-
-```bash
-flutter pub get
-flutter run -d windows   # or: macos, chrome, android, ios
-```
-
-## Build a release
-
-```bash
-flutter build windows    # or: macos, web, apk, ios
-```
-
 ## Checks
 
 ```bash
