@@ -147,12 +147,9 @@ class _SidePanelClockState extends State<_SidePanelClock> {
   @override
   void initState() {
     super.initState();
-    _updateTime();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) => _updateTime());
-  }
-
-  void _updateTime() {
-    // clock updated via timer
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) setState(() {});
+    });
   }
 
   String _pad(int value) => value.toString().padLeft(2, '0');
