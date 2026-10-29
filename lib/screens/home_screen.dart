@@ -7,9 +7,20 @@ import '../theme.dart';
 import '../gradient_border.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, this.logs = const []});
+  const HomeScreen({super.key, this.logs = const [], this.resources = const []});
 
   final List<String> logs;
+  final List<Resource> resources;
+
+  /// The resource with the most logged entries; ties go to the most recently edited.
+  Resource? get _mostActive {
+    if (resources.isEmpty) return null;
+    return resources.reduce((a, b) {
+      final byEntries = a.entries.length.compareTo(b.entries.length);
+      if (byEntries != 0) return byEntries > 0 ? a : b;
+      return a.entries.last.time.isAfter(b.entries.last.time) ? a : b;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,17 +28,9 @@ class HomeScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Empty panels — data will go here after CRUD setup
         SizedBox(
           height: h * 5 / 7,
-          child: _DataPanel(
-          title: '',
-          subtitle: '',
-          child: logs.isNotEmpty ? _ResourceCard(
-            resource: Resource.create(id: 'dummy', name: 'Food', unit: 'kg', initialQuantity: 100),
-            onEdit: () {},
-          ) : Container(height: 180, color: AppColors.card),
-        ),
+          child: _ResourcePanel(resource: _mostActive),
         ),
         const SizedBox(height: 16),
         // Bottom row: logs full width
@@ -56,80 +59,26 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _DataPanel extends StatelessWidget {
-  const _DataPanel({required this.title, this.subtitle, required this.child});
+class _ResourcePanel extends StatelessWidget {
+  const _ResourcePanel({this.resource});
 
-  final String title;
-  final String? subtitle;
-  final Widget child;
+  final Resource? resource;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        gradient: LinearGradient(
-          colors: [Colors.grey.shade600, const Color(0xFF333333)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      padding: const EdgeInsets.all(0),
-      child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(10.5),
-            ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                  ),
-                  const Spacer(),
-                  if (subtitle != null)
-                    Text(
-                      subtitle!,
-                      style: const TextStyle(color: AppColors.critical),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              child,
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ResourceCard extends StatelessWidget {
-  const _ResourceCard({super.key, required this.resource, required this.onEdit});
-
-  final Resource resource;
-  final VoidCallback onEdit;
-
-  @override
-  Widget build(BuildContext context) {
+    final resource = this.resource;
     return GradientBorder(
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(10.5),
-        ),
-        margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: resource == null
+            ? const Center(
+                child: Text(
+                  'No resources yet',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '${resource.name.toUpperCase()} (${resource.unit})',
@@ -139,41 +88,31 @@ class _ResourceCard extends StatelessWidget {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  IconButton(
-                  icon: const Icon(Icons.edit, size: 20, color: AppColors.accent),
-                  onPressed: onEdit,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '${resource.quantity} ${resource.unit}',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 14,
-                color: AppColors.textSecondary,
+                  const SizedBox(height: 12),
+                  Text(
+                    '${resource.quantity} ${resource.unit}',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Builder(builder: (context) {
+                    final entries = resource.entries;
+                    if (entries.length < 2) return const SizedBox.shrink();
+                    final first = entries.first.time;
+                    final last = entries.last.time;
+                    final days = last.difference(first).inDays;
+                    if (days <= 0) return const SizedBox.shrink();
+                    final totalUsed = entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
+                    final avg = totalUsed / days;
+                    return Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
+                      style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w500));
+                  }),
+                  const SizedBox(height: 12),
+                  Expanded(child: _StockChart(resource: resource)),
+                ],
               ),
-            ),
-            const SizedBox(height: 4),
-            Builder(builder: (context) {
-              final entries = resource.entries;
-              if (entries.length < 2) return const SizedBox.shrink();
-              final first = entries.first.time;
-              final last = entries.last.time;
-              final days = last.difference(first).inDays;
-              if (days <= 0) return const SizedBox.shrink();
-              final totalUsed = entries.fold(0, (sum, e) => sum + (e.delta < 0 ? -e.delta : 0));
-              final avg = totalUsed / days;
-              return Text('AVG: ${avg.toStringAsFixed(1)} ${resource.unit}/d',
-                style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w500));
-            }),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 180,
-              width: double.infinity,
-              child: _StockChart(resource: resource),
-            ),
-          ],
-        ),
       ),
     );
   }

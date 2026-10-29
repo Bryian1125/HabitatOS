@@ -80,9 +80,20 @@ class Resource {
 }
 
 class ResourcesScreen extends StatefulWidget {
-  const ResourcesScreen({super.key, required this.onEditLog});
+  const ResourcesScreen({
+    super.key,
+    required this.onEditLog,
+    required this.resources,
+    required this.onAdd,
+    required this.onLog,
+    required this.onDelete,
+  });
 
   final void Function(String) onEditLog;
+  final List<Resource> resources;
+  final void Function(Resource) onAdd;
+  final void Function(String id, StockEntry entry) onLog;
+  final void Function(String id) onDelete;
 
   @override
   State<ResourcesScreen> createState() => _ResourcesScreenState();
@@ -92,23 +103,16 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
   @override
   bool get wantKeepAlive => true;
 
-  late final List<Resource> _resources = [
-    Resource.create(id: 'food_1', name: 'Food', unit: 'kg', initialQuantity: 100),
-    Resource.create(id: 'water_1', name: 'Water', unit: 'L', initialQuantity: 100),
-  ];
-
   void _addResource() {
     showDialog<void>(
       context: context,
       builder: (_) => _AddResourceDialog(
-        onSave: (name, quantity, unit) => setState(() {
-          _resources.add(Resource.create(
-            id: 'resource_${DateTime.now().microsecondsSinceEpoch}',
-            name: name,
-            unit: unit,
-            initialQuantity: quantity,
-          ));
-        }),
+        onSave: (name, quantity, unit) => widget.onAdd(Resource.create(
+          id: 'resource_${DateTime.now().microsecondsSinceEpoch}',
+          name: name,
+          unit: unit,
+          initialQuantity: quantity,
+        )),
       ),
     );
   }
@@ -120,20 +124,17 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
         resource: resource,
         onSave: (delta, info, time) =>
             _logStockChange(resource.id, delta, info, time),
-        onDelete: () =>
-            setState(() => _resources.removeWhere((r) => r.id == resource.id)),
+        onDelete: () => widget.onDelete(resource.id),
       ),
     );
   }
 
   void _logStockChange(String id, int delta, String info, DateTime time) {
-    final index = _resources.indexWhere((r) => r.id == id);
+    final index = widget.resources.indexWhere((r) => r.id == id);
     if (index == -1) return;
 
-    final resource = _resources[index];
-    setState(() {
-      _resources[index] = resource.withEntry(StockEntry(time, delta));
-    });
+    final resource = widget.resources[index];
+    widget.onLog(id, StockEntry(time, delta));
 
     final note = info.isEmpty ? '' : ', $info';
     widget.onEditLog(
@@ -167,7 +168,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> with AutomaticKeepAli
           child: const Text('Add Resource'),
         ),
         const SizedBox(height: 16),
-        ..._resources.map((resource) => _ResourceCard(
+        ...widget.resources.map((resource) => _ResourceCard(
           key: ValueKey(resource.id),
           resource: resource,
           onEdit: () => _editResource(resource),

@@ -19,12 +19,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
   final List<String> _resourceLogs = [];
 
+  final List<Resource> _resources = [
+    Resource.create(id: 'food_1', name: 'Food', unit: 'kg', initialQuantity: 100),
+    Resource.create(id: 'water_1', name: 'Water', unit: 'L', initialQuantity: 100),
+  ];
+
   List<Widget> get _pages => [
-    HomeScreen(logs: _resourceLogs),
-    ResourcesScreen(onEditLog: _addResourceLog),
+    HomeScreen(logs: _resourceLogs, resources: _resources),
+    ResourcesScreen(
+      onEditLog: _addResourceLog,
+      resources: _resources,
+      onAdd: _addResource,
+      onLog: _logResource,
+      onDelete: _deleteResource,
+    ),
     LogsScreen(logs: _resourceLogs),
     const SettingsScreen(),
   ];
+
+  void _addResource(Resource resource) {
+    setState(() => _resources.add(resource));
+  }
+
+  void _logResource(String id, StockEntry entry) {
+    final index = _resources.indexWhere((r) => r.id == id);
+    if (index == -1) return;
+    setState(() {
+      _resources[index] = _resources[index].withEntry(entry);
+    });
+  }
+
+  void _deleteResource(String id) {
+    setState(() => _resources.removeWhere((r) => r.id == id));
+  }
 
   void _addResourceLog(String message) {
     setState(() {
