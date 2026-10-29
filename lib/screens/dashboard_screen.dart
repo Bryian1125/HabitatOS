@@ -38,10 +38,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Widget> get _pages => [
     HomeScreen(logs: _resourceLogs, resources: _resources),
     ResourcesScreen(
-      onEditLog: _addResourceLog,
       resources: _resources,
       onAdd: _addResource,
-      onLog: _logResource,
+      onLog: _applyStockChange,
       onDelete: _deleteResource,
       onRename: _renameResource,
     ),
@@ -57,11 +56,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() => _resources.add(resource));
   }
 
-  void _logResource(String id, StockEntry entry) {
+  void _applyStockChange(String id, StockEntry entry, LogEntry log) {
     final index = _resources.indexWhere((r) => r.id == id);
     if (index == -1) return;
+
+    final previous = _resources[index];
     setState(() {
-      _resources[index] = _resources[index].withEntry(entry);
+      _resources[index] = previous.withEntry(entry);
+      _resourceLogs.add(log);
+    });
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(log.message),
+          action: SnackBarAction(
+            label: 'UNDO',
+            onPressed: () => _revertStockChange(previous, log),
+          ),
+        ),
+      );
+  }
+
+  void _revertStockChange(Resource previous, LogEntry log) {
+    setState(() {
+      final index = _resources.indexWhere((r) => r.id == previous.id);
+      if (index != -1) _resources[index] = previous;
+      _resourceLogs.remove(log);
     });
   }
 
@@ -77,12 +99,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       _resources.removeWhere((r) => r.id == id);
       _resourceLogs.removeWhere((log) => log.resourceId == id);
-    });
-  }
-
-  void _addResourceLog(LogEntry entry) {
-    setState(() {
-      _resourceLogs.add(entry);
     });
   }
 

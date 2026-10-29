@@ -195,4 +195,34 @@ void main() {
 
     expect(find.text('Add Resource'), findsOneWidget);
   });
+
+  testWidgets('logging a stock change can be undone', (tester) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Resources'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('100 kg'), findsWidgets);
+
+    await tester.tap(find.byIcon(Icons.edit).first);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).first, '-10');
+    await tester.tap(find.byIcon(Icons.save));
+    await tester.pumpAndSettle();
+
+    expect(find.text('90 kg'), findsWidgets);
+    expect(find.text('UNDO'), findsOneWidget);
+
+    await tester.tap(find.text('UNDO'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('90 kg'), findsNothing);
+    expect(find.text('100 kg'), findsWidgets);
+  });
 }

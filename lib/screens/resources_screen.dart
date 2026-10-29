@@ -15,7 +15,6 @@ export '../models/resource.dart';
 class ResourcesScreen extends StatefulWidget {
   const ResourcesScreen({
     super.key,
-    required this.onEditLog,
     required this.resources,
     required this.onAdd,
     required this.onLog,
@@ -23,10 +22,9 @@ class ResourcesScreen extends StatefulWidget {
     required this.onRename,
   });
 
-  final void Function(LogEntry) onEditLog;
   final List<Resource> resources;
   final void Function(Resource) onAdd;
-  final void Function(String id, StockEntry entry) onLog;
+  final void Function(String id, StockEntry entry, LogEntry log) onLog;
   final void Function(String id) onDelete;
   final void Function(String id, String name, String unit) onRename;
 
@@ -82,18 +80,15 @@ class _ResourcesScreenState extends State<ResourcesScreen>
     if (index == -1) return;
 
     final resource = widget.resources[index];
-    widget.onLog(id, StockEntry(time, delta, info));
-
     final note = info.isEmpty ? '' : ', $info';
-    widget.onEditLog(
-      LogEntry(
-        time: time,
-        resourceId: id,
-        message:
-            'Edit ${resource.name}: ${signedDelta(delta)} '
-            '${resource.unit}$note',
-      ),
+    final log = LogEntry(
+      time: time,
+      resourceId: id,
+      message:
+          'Edit ${resource.name}: ${signedDelta(delta)} ${resource.unit}$note',
     );
+
+    widget.onLog(id, StockEntry(time, delta, info), log);
   }
 
   @override
