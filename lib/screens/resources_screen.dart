@@ -59,7 +59,6 @@ class _ResourcesScreenState extends State<ResourcesScreen>
         resource: resource,
         onSave: (delta, info, time) =>
             _logStockChange(resource.id, delta, info, time),
-        onDelete: () => widget.onDelete(resource.id),
       ),
     );
   }
@@ -318,12 +317,10 @@ class _LogStockDialog extends StatefulWidget {
   const _LogStockDialog({
     required this.resource,
     required this.onSave,
-    required this.onDelete,
   });
 
   final Resource resource;
   final void Function(int delta, String info, DateTime time) onSave;
-  final VoidCallback onDelete;
 
   @override
   State<_LogStockDialog> createState() => _LogStockDialogState();
@@ -379,12 +376,6 @@ class _LogStockDialogState extends State<_LogStockDialog> {
       return;
     }
     widget.onSave(delta, _info.text.trim(), _dateTime);
-    Navigator.of(context).pop();
-  }
-
-  Future<void> _delete() async {
-    if (!await _confirmDelete(context) || !mounted) return;
-    widget.onDelete();
     Navigator.of(context).pop();
   }
 
@@ -453,11 +444,6 @@ class _LogStockDialogState extends State<_LogStockDialog> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         IconButton(
-          icon: const Icon(Icons.delete, color: AppColors.critical),
-          tooltip: 'Delete',
-          onPressed: _delete,
-        ),
-        IconButton(
           icon: const Icon(Icons.save, color: AppColors.accent),
           tooltip: 'Log',
           onPressed: _submit,
@@ -465,33 +451,4 @@ class _LogStockDialogState extends State<_LogStockDialog> {
       ],
     );
   }
-}
-
-Future<bool> _confirmDelete(BuildContext context) async {
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      backgroundColor: AppColors.card,
-      title: const Text(
-        'Confirm Delete',
-        style: TextStyle(color: AppColors.textPrimary),
-      ),
-      content: const Text(
-        'Are you sure you want to delete this resource? Its log entries will '
-        'be deleted too.',
-        style: TextStyle(color: AppColors.textSecondary),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: const Text('Delete', style: TextStyle(color: AppColors.critical)),
-        ),
-      ],
-    ),
-  );
-  return confirmed ?? false;
 }
