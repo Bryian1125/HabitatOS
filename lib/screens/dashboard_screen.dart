@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import '../models/log_entry.dart';
+import '../services/storage.dart';
 import '../theme.dart';
 import '../utils/format.dart';
 import 'home_screen.dart';
@@ -17,23 +18,57 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final StorageService _storage = StorageService();
   int _selectedIndex = 0;
   final List<LogEntry> _resourceLogs = [];
+  final List<Resource> _resources = [];
+  bool _loaded = false;
 
-  final List<Resource> _resources = [
-    Resource.create(
-      id: 'food_1',
-      name: 'Food',
-      unit: 'kg',
-      initialQuantity: 100,
-    ),
-    Resource.create(
-      id: 'water_1',
-      name: 'Water',
-      unit: 'L',
-      initialQuantity: 100,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final hadStoredData = await _storage.hasData();
+    final data = await _storage.load();
+    if (!mounted) return;
+
+    setState(() {
+      _resources
+        ..clear()
+        ..addAll(hadStoredData ? data.resources : _seedResources());
+      _resourceLogs
+        ..clear()
+        ..addAll(data.logs);
+      _loaded = true;
+    });
+
+    if (!hadStoredData) await _save();
+  }
+
+  /// Starting stock for a brand new install.
+  List<Resource> _seedResources() => [
+        Resource.create(
+          id: 'food_1',
+          name: 'Food',
+          unit: 'kg',
+          initialQuantity: 100,
+        ),
+        Resource.create(
+          id: 'water_1',
+          name: 'Water',
+          unit: 'L',
+          initialQuantity: 100,
+        ),
+      ];
+
+  Future<void> _save() => _storage.save(
+        HabitatData(resources: _resources, logs: _resourceLogs),
+      );
+
+  void _persist() => unawaited(_save());
 
   List<Widget> get _pages => [
     HomeScreen(logs: _resourceLogs, resources: _resources),
@@ -54,6 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _addResource(Resource resource) {
     setState(() => _resources.add(resource));
+    _persist();
   }
 
   void _applyStockChange(String id, StockEntry entry, LogEntry log) {
@@ -65,6 +101,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _resources[index] = previous.withEntry(entry);
       _resourceLogs.add(log);
     });
+    _persist();
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -85,6 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (index != -1) _resources[index] = previous;
       _resourceLogs.remove(log);
     });
+    _persist();
   }
 
   void _renameResource(String id, String name, String unit) {
@@ -93,6 +131,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       _resources[index] = _resources[index].withDetails(name: name, unit: unit);
     });
+    _persist();
   }
 
   void _deleteResource(String id) {
@@ -100,14 +139,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _resources.removeWhere((r) => r.id == id);
       _resourceLogs.removeWhere((log) => log.resourceId == id);
     });
+    _persist();
   }
 
   void _deleteLog(LogEntry entry) {
     setState(() => _resourceLogs.remove(entry));
+    _persist();
   }
 
   void _clearLogs() {
     setState(() => _resourceLogs.clear());
+    _persist();
   }
 
   final List<String> _navLabels = const [
@@ -139,7 +181,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: Container(
                 color: AppColors.background,
-                child: IndexedStack(index: _selectedIndex, children: _pages),
+                child: _loaded
+                    ? IndexedStack(index: _selectedIndex, children: _pages)
+                    : const Center(child: CircularProgressIndicator()),
               ),
             ),
           ],

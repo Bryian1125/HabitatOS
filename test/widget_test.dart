@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:habitatos/main.dart';
 import 'package:habitatos/models/resource.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   group('Resource', () {
     test('create keeps the initial quantity as a baseline, not a delta', () {
       final created = DateTime(2026, 1, 1, 8);

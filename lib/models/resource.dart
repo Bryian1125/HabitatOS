@@ -115,6 +115,38 @@ class Resource {
   bool wouldGoNegative(StockEntry entry) =>
       withEntry(entry).timeline.any((p) => p.quantity < 0);
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'unit': unit,
+        'initialQuantity': initialQuantity,
+        'createdAt': createdAt.toIso8601String(),
+        'entries': [
+          for (final e in entries)
+            {
+              'time': e.time.toIso8601String(),
+              'delta': e.delta,
+              'note': e.note,
+            },
+        ],
+      };
+
+  static Resource fromJson(Map<String, dynamic> json) => Resource(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        unit: json['unit'] as String,
+        initialQuantity: json['initialQuantity'] as int,
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        entries: [
+          for (final entry in json['entries'] as List<dynamic>? ?? const [])
+            StockEntry(
+              DateTime.parse((entry as Map<String, dynamic>)['time'] as String),
+              entry['delta'] as int,
+              entry['note'] as String? ?? '',
+            ),
+        ],
+      );
+
   static List<StockEntry> _chronological(Iterable<StockEntry> entries) {
     return entries.toList()..sort((a, b) {
       final byTime = a.time.compareTo(b.time);
