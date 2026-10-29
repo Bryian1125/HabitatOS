@@ -7,9 +7,7 @@ import '../models/resource.dart';
 import '../theme.dart';
 import '../utils/format.dart';
 
-/// Stock-on-hand line chart for one resource.
-///
-/// Shared by the home panel and the resources list so both stay in step.
+/// Stock chart shared by Home and Resources.
 class StockChart extends StatelessWidget {
   const StockChart({super.key, required this.resource, this.lineColor});
 
@@ -54,7 +52,7 @@ class StockChart extends StatelessWidget {
 
     final tailX = spots.last.x;
     final maxX = max(tailX, _minSpanHours);
-    final showClockTime = maxX < 24; // short span: HH:mm, otherwise MM-dd
+    final showClockTime = maxX < 24;
 
     final peak = timeline.fold<int>(1, (m, p) => max(m, p.quantity));
     final yInterval = (peak / _yDivisions).ceil();

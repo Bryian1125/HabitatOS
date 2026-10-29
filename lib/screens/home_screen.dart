@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/log_entry.dart';
 import 'resources_screen.dart';
@@ -45,8 +45,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        // Bottom row: logs full width
-        GradientBorder(
+                GradientBorder(
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.card,
@@ -225,4 +224,6 @@ class _EmptyChart extends StatelessWidget {
     );
   }
 }
+
+
 

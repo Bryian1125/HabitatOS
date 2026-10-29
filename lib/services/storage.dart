@@ -1,26 +1,26 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/log_entry.dart';
 import '../models/resource.dart';
 
-/// Everything the app keeps between launches.
+/// App data persisted between launches.
 class HabitatData {
   const HabitatData({
     this.resources = const [],
     this.logs = const [],
-    this.graphLineColor = 0xFF39FF14, // electric-neon-green default
+    this.graphLineColor = 0xFF39FF14,
   });
 
   final List<Resource> resources;
   final List<LogEntry> logs;
-  final int graphLineColor; // ARGB int
+  final int graphLineColor;
 
   static const empty = HabitatData();
 }
 
-/// Reads and writes [HabitatData] as a single JSON blob in shared preferences.
+/// JSON blob in shared preferences.
 class StorageService {
   StorageService([this._preferences]);
 
@@ -81,3 +81,4 @@ class StorageService {
     );
   }
 }
+

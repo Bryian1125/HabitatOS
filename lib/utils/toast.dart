@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../theme.dart';
 
-/// A lightweight toast notification that appears in the bottom-right corner
-/// and auto-dismisses after a short duration.
+/// Bottom-right toast, auto-dismisses.
 class Toast {
   Toast._();
 
@@ -181,7 +180,6 @@ class _ToastWidgetState extends State<_ToastWidget>
   }
 }
 
-/// Extension to easily show toasts from any BuildContext.
 extension ToastContext on BuildContext {
   void showToast(
     String message, {

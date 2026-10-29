@@ -6,8 +6,6 @@ class StockEntry {
 
   final DateTime time;
   final int delta;
-
-  /// Optional free-text note the user attached to the change.
   final String note;
 }
 
@@ -51,19 +49,14 @@ class Resource {
   final String name;
   final String unit;
 
-  /// Stock on hand when the resource was added. Kept separate from [entries]
-  /// so a backdated change cannot make the starting stock appear to happen
-  /// after the change that consumed it.
+  /// Baseline quantity (separate from entries so backdating works).
   final int initialQuantity;
 
   final DateTime createdAt;
-
   final List<StockEntry> entries;
 
   int get quantity => entries.fold(initialQuantity, (sum, e) => sum + e.delta);
 
-  /// Stock on hand over time, starting with the baseline at the earliest
-  /// known moment.
   List<StockPoint> get timeline {
     final origin = entries.isNotEmpty && entries.first.time.isBefore(createdAt)
         ? entries.first.time
@@ -75,11 +68,7 @@ class Resource {
     ];
   }
 
-  /// Average units consumed per day across the tracked span.
-  ///
-  /// Null while there is nothing to average: no logged change yet, entries
-  /// that share a timestamp, or a span shorter than a minute. The span is
-  /// measured in seconds so a five hour history is not treated as zero days.
+  /// Daily consumption rate (null if not enough data).
   double? get avgPerDay {
     final points = timeline;
     if (entries.isEmpty) return null;

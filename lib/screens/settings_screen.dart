@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../theme.dart';
 
@@ -171,3 +171,4 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
+

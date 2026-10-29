@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'dart:async';
 
 import '../models/log_entry.dart';
@@ -23,7 +23,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<LogEntry> _resourceLogs = [];
   final List<Resource> _resources = [];
   bool _loaded = false;
-  int _graphLineColor = 0xFF39FF14; // electric-neon-green
+  int _graphLineColor = 0xFF39FF14;
 
   @override
   void initState() {
@@ -50,7 +50,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (!hadStoredData) await _save();
   }
 
-  /// Starting stock for a brand new install.
   List<Resource> _seedResources() => [
         Resource.create(
           id: 'food_1',
@@ -128,8 +127,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _resourceLogs.add(log);
     });
     _persist();
-
-    // Show custom toast with undo action
     _showUndoToast(log.message, previous, log);
   }
 
@@ -155,7 +152,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     overlay.insert(entry);
 
-    // Auto-dismiss after 3 seconds
     dismissTimer = Timer(const Duration(seconds: 3), () {
       if (entry.mounted) entry.remove();
     });
@@ -387,7 +383,7 @@ class _SidePanelClockState extends State<_SidePanelClock> {
     super.dispose();
   }
 }
-/// Toast widget with undo action for stock changes
+/// Toast with undo.
 class _UndoToastWidget extends StatefulWidget {
   const _UndoToastWidget({
     required this.message,
@@ -522,7 +518,7 @@ class _UndoToastWidgetState extends State<_UndoToastWidget>
   }
 }
 
-/// Dialog for editing resource details (rename + delete)
+/// Edit resource (rename + delete).
 class _EditResourceDetailsDialog extends StatefulWidget {
   const _EditResourceDetailsDialog({
     required this.resource,
@@ -647,3 +643,5 @@ class _EditResourceDetailsDialogState extends State<_EditResourceDetailsDialog> 
     );
   }
 }
+
+

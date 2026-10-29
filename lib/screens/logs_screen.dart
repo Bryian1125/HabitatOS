@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../gradient_border.dart';
 import '../models/log_entry.dart';
@@ -131,3 +131,4 @@ class LogsScreen extends StatelessWidget {
     );
   }
 }
+
