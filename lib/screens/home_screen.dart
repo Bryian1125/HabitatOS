@@ -291,7 +291,7 @@ class _StockChart extends StatelessWidget {
               getTooltipItems: (touched) => [
                 for (final spot in touched)
                   LineTooltipItem(
-                    '${timeAt(spot.x).toString()}\n${spot.y.toInt()} ${resource.unit}',
+                    '${formatDateTime(timeAt(spot.x))}\n${spot.y.toInt()} ${resource.unit}',
                     const TextStyle(color: Colors.white, fontSize: 12),
                   ),
               ],
